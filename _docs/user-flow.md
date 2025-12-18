@@ -108,7 +108,7 @@ Reduce user anxiety and establish emotional safety before data collection.
 
 ### Screen Elements
 - Calm visual design (soft tones, organic shapes)
-- Role-specific supportive messaging
+- Role-specific supportive messaging ("Just because you're struggling, doesn't mean you're broken.")
 - Brief overview of what to expect in the process
 
 ### Role-Specific Messaging
