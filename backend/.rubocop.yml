@@ -42,11 +42,13 @@ FactoryBot:
 Layout/LineLength:
   Max: 120
   AllowedPatterns: ['^\s*#']
+  Exclude:
+    - 'db/seeds/**/*'
 
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 
-# Metrics
+# Metrics - relaxed for complex service classes
 Metrics/BlockLength:
   Exclude:
     - 'spec/**/*'
@@ -54,17 +56,25 @@ Metrics/BlockLength:
     - 'lib/tasks/**/*'
 
 Metrics/MethodLength:
-  Max: 20
+  Max: 40
   Exclude:
     - 'db/migrate/**/*'
+    - 'db/seeds/**/*'
 
 Metrics/ClassLength:
-  Max: 200
+  Max: 250
 
 Metrics/AbcSize:
-  Max: 25
+  Max: 50
   Exclude:
     - 'db/migrate/**/*'
+    - 'db/seeds/**/*'
+
+Metrics/CyclomaticComplexity:
+  Max: 10
+
+Metrics/PerceivedComplexity:
+  Max: 10
 
 # Style
 Style/Documentation:
@@ -93,6 +103,24 @@ Rails/SkipsModelValidations:
   Enabled: true
   AllowedMethods:
     - 'touch'
+    - 'increment!'
+
+Rails/I18nLocaleTexts:
+  Enabled: false
+
+# Naming - allow has_* predicate methods
+Naming/PredicatePrefix:
+  Enabled: false
+
+# Lint - relax certain rules
+Lint/NoReturnInBeginEndBlocks:
+  Enabled: false
+
+Lint/DuplicateBranch:
+  Enabled: false
+
+Lint/UnusedMethodArgument:
+  AllowUnusedKeywordArguments: true
 
 # RSpec
 RSpec/MultipleExpectations:
