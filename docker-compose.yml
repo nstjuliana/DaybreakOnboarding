@@ -1,0 +1,123 @@
+# Docker Compose Configuration
+#
+# Development environment for the Parent Onboarding AI application.
+# Starts PostgreSQL, Rails backend, and Next.js frontend.
+#
+# Usage:
+#   docker compose up          # Start all services
+#   docker compose up -d       # Start in detached mode
+#   docker compose up backend  # Start backend only
+#   docker compose logs -f     # View logs
+#
+# Services:
+#   - db:       PostgreSQL 15 database
+#   - backend:  Rails 8 API (port 3000)
+#   - frontend: Next.js 14 (port 3001)
+#
+
+services:
+  # ==========================================================================
+  # PostgreSQL Database
+  # ==========================================================================
+  db:
+    image: postgres:15-alpine
+    container_name: daybreak-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: daybreak_development
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================================================
+  # Rails Backend API
+  # ==========================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: daybreak-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      RAILS_ENV: development
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+      FRONTEND_URL: http://localhost:3001
+      RAILS_MAX_THREADS: 5
+      RAILS_LOG_TO_STDOUT: "true"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - backend_bundle:/usr/local/bundle
+      - backend_node_modules:/app/node_modules
+    stdin_open: true
+    tty: true
+    command: >
+      bash -c "
+        bundle install &&
+        bundle exec rails db:prepare &&
+        bundle exec rails server -b 0.0.0.0 -p 3000
+      "
+
+  # ==========================================================================
+  # Next.js Frontend
+  # ==========================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: daybreak-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:3000/api/v1
+      NEXT_PUBLIC_APP_ENV: development
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+      - frontend_next:/app/.next
+    command: npm run dev
+
+# ==========================================================================
+# Volumes
+# ==========================================================================
+volumes:
+  postgres_data:
+    name: daybreak-postgres-data
+  backend_bundle:
+    name: daybreak-backend-bundle
+  backend_node_modules:
+    name: daybreak-backend-node-modules
+  frontend_node_modules:
+    name: daybreak-frontend-node-modules
+  frontend_next:
+    name: daybreak-frontend-next
+
+# ==========================================================================
+# Networks
+# ==========================================================================
+networks:
+  default:
+    name: daybreak-network
+
