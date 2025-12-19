@@ -24,3 +24,4 @@ local:
 #     server_side_encryption: 'aws:kms'
 #     ssekms_key_id: <%= ENV['AWS_KMS_KEY_ID'] %>
 
+

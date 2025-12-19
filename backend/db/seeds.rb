@@ -14,7 +14,7 @@ Rails.logger.debug 'Seeding database...'
 Rails.logger.debug '=' * 50
 
 # Load clinicians seed
-load Rails.root.join('db', 'seeds', 'clinicians.rb', 'clinicians.rb')
+load Rails.root.join('db', 'seeds', 'clinicians.rb')
 
 Rails.logger.debug '=' * 50
 Rails.logger.debug 'Database seeding complete!'

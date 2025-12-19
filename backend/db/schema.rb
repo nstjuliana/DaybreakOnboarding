@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2024_12_18_000005) do
+ActiveRecord::Schema[8.1].define(version: 2024_12_19_000006) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -84,12 +84,160 @@ ActiveRecord::Schema[8.1].define(version: 2024_12_18_000005) do
     t.index ["status"], name: "index_clinicians_on_status"
   end
 
+  create_table "conversations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "assessment_id", null: false
+    t.datetime "created_at", null: false
+    t.string "current_question_id"
+    t.datetime "discarded_at"
+    t.jsonb "metadata", default: {}
+    t.integer "questions_completed", default: 0
+    t.string "screener_type", default: "psc17", null: false
+    t.string "status", default: "active", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["assessment_id"], name: "index_conversations_on_assessment_id"
+    t.index ["discarded_at"], name: "index_conversations_on_discarded_at"
+    t.index ["screener_type"], name: "index_conversations_on_screener_type"
+    t.index ["status"], name: "index_conversations_on_status"
+    t.index ["user_id", "created_at"], name: "index_conversations_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_conversations_on_user_id"
+  end
+
+  create_table "crisis_events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.jsonb "context", default: {}
+    t.uuid "conversation_id", null: false
+    t.datetime "created_at", null: false
+    t.string "detection_method", default: "keyword"
+    t.jsonb "matched_keywords", default: []
+    t.uuid "message_id"
+    t.text "resolution_notes"
+    t.datetime "resolved_at"
+    t.string "resolved_by"
+    t.boolean "reviewed", default: false
+    t.datetime "reviewed_at"
+    t.string "reviewed_by"
+    t.string "risk_level", null: false
+    t.boolean "safety_pivot_shown", default: false
+    t.text "trigger_content", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.string "user_response"
+    t.index ["conversation_id"], name: "index_crisis_events_on_conversation_id"
+    t.index ["detection_method"], name: "index_crisis_events_on_detection_method"
+    t.index ["message_id"], name: "index_crisis_events_on_message_id"
+    t.index ["resolved_at"], name: "index_crisis_events_on_resolved_at"
+    t.index ["reviewed"], name: "index_crisis_events_on_reviewed"
+    t.index ["risk_level", "reviewed"], name: "index_crisis_events_on_risk_level_and_reviewed"
+    t.index ["risk_level"], name: "index_crisis_events_on_risk_level"
+    t.index ["safety_pivot_shown"], name: "index_crisis_events_on_safety_pivot_shown"
+    t.index ["user_id", "created_at"], name: "index_crisis_events_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_crisis_events_on_user_id"
+  end
+
+  create_table "insurance_cards", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "discarded_at"
+    t.float "extraction_confidence"
+    t.string "group_number"
+    t.string "member_id"
+    t.string "payment_method", null: false
+    t.string "plan_name"
+    t.date "policyholder_dob"
+    t.string "policyholder_name"
+    t.string "provider"
+    t.jsonb "raw_extraction", default: {}
+    t.string "relationship_to_patient"
+    t.string "status", default: "pending", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["discarded_at"], name: "index_insurance_cards_on_discarded_at"
+    t.index ["payment_method"], name: "index_insurance_cards_on_payment_method"
+    t.index ["status"], name: "index_insurance_cards_on_status"
+    t.index ["user_id", "created_at"], name: "index_insurance_cards_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_insurance_cards_on_user_id"
+  end
+
   create_table "jwt_denylist", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "exp", null: false
     t.string "jti", null: false
     t.datetime "updated_at", null: false
     t.index ["jti"], name: "index_jwt_denylist_on_jti", unique: true
+  end
+
+  create_table "messages", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.text "content", null: false
+    t.uuid "conversation_id", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "crisis_flags", default: {}
+    t.datetime "discarded_at"
+    t.jsonb "extracted_response", default: {}
+    t.string "processing_status", default: "complete"
+    t.string "risk_level", default: "none"
+    t.string "role", default: "user", null: false
+    t.string "sender", null: false
+    t.integer "sequence_number", null: false
+    t.datetime "updated_at", null: false
+    t.index ["conversation_id", "sequence_number"], name: "index_messages_on_conversation_id_and_sequence_number"
+    t.index ["conversation_id"], name: "index_messages_on_conversation_id"
+    t.index ["crisis_flags"], name: "index_messages_on_crisis_flags", using: :gin
+    t.index ["discarded_at"], name: "index_messages_on_discarded_at"
+    t.index ["extracted_response"], name: "index_messages_on_extracted_response", using: :gin
+    t.index ["processing_status"], name: "index_messages_on_processing_status"
+    t.index ["risk_level"], name: "index_messages_on_risk_level"
+    t.index ["role"], name: "index_messages_on_role"
+    t.index ["sender"], name: "index_messages_on_sender"
+  end
+
+  create_table "patients", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "city"
+    t.datetime "created_at", null: false
+    t.date "date_of_birth"
+    t.datetime "discarded_at"
+    t.string "email"
+    t.string "emergency_contact_name"
+    t.string "emergency_contact_phone"
+    t.string "emergency_contact_relationship"
+    t.string "first_name", null: false
+    t.string "gender"
+    t.string "grade"
+    t.string "last_name", null: false
+    t.jsonb "metadata", default: {}
+    t.uuid "parent_user_id"
+    t.string "phone"
+    t.string "preferred_name"
+    t.string "pronouns"
+    t.string "school"
+    t.string "state"
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.string "zip_code"
+    t.index ["discarded_at"], name: "index_patients_on_discarded_at"
+    t.index ["parent_user_id"], name: "index_patients_on_parent_user_id"
+    t.index ["user_id", "created_at"], name: "index_patients_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_patients_on_user_id"
+  end
+
+  create_table "screener_responses", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.integer "clarification_attempts", default: 0
+    t.float "confidence", default: 0.0
+    t.uuid "conversation_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "extracted_value"
+    t.jsonb "extraction_metadata", default: {}
+    t.uuid "message_id", null: false
+    t.string "question_id", null: false
+    t.text "response_text", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "verified", default: false
+    t.index ["confidence"], name: "index_screener_responses_on_confidence"
+    t.index ["conversation_id", "question_id"], name: "index_screener_responses_on_conversation_id_and_question_id", unique: true
+    t.index ["conversation_id"], name: "index_screener_responses_on_conversation_id"
+    t.index ["message_id"], name: "index_screener_responses_on_message_id"
+    t.index ["question_id"], name: "index_screener_responses_on_question_id"
+    t.index ["verified"], name: "index_screener_responses_on_verified"
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -131,4 +279,14 @@ ActiveRecord::Schema[8.1].define(version: 2024_12_18_000005) do
   add_foreign_key "appointments", "clinicians"
   add_foreign_key "appointments", "users"
   add_foreign_key "assessments", "users"
+  add_foreign_key "conversations", "assessments"
+  add_foreign_key "conversations", "users"
+  add_foreign_key "crisis_events", "conversations"
+  add_foreign_key "crisis_events", "messages"
+  add_foreign_key "crisis_events", "users"
+  add_foreign_key "insurance_cards", "users"
+  add_foreign_key "messages", "conversations"
+  add_foreign_key "patients", "users"
+  add_foreign_key "screener_responses", "conversations"
+  add_foreign_key "screener_responses", "messages"
 end
