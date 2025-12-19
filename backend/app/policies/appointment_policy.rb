@@ -63,3 +63,4 @@ class AppointmentPolicy < ApplicationPolicy
     user.respond_to?(:clinician?) && user.clinician? && record.clinician_id == user.id
   end
 end
+
