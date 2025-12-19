@@ -35,10 +35,23 @@ Rails.application.routes.draw do
       # Clinicians
       resources :clinicians, only: [:index, :show] do
         get 'random', on: :collection
+        get 'availability', on: :member
+        post 'match', on: :collection
       end
 
-      # Appointments (stub for MVP)
-      resources :appointments, only: [:create, :show, :index]
+      # Insurance
+      resources :insurance, only: [:index, :create, :show, :update], controller: 'insurance' do
+        post 'extract', on: :member
+        post 'verify', on: :member
+      end
+
+      # Patients (demographics)
+      resources :patients, only: [:create, :show, :update]
+
+      # Appointments
+      resources :appointments, only: [:create, :show, :index, :update] do
+        post 'cancel', on: :member
+      end
 
       # Conversations (AI Chat)
       resources :conversations, only: [:create, :show] do

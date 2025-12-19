@@ -37,11 +37,15 @@ class Appointment < ApplicationRecord
 
   # Session type definitions
   SESSION_TYPES = {
-    'initial' => 'Initial Consultation (30 min)',
-    'diagnostic' => 'Full Diagnostic Session (50 min)',
-    'therapy' => 'Therapy Session (50 min)',
-    'follow_up' => 'Follow-up Session (30 min)'
+    'initial' => 'Initial Consultation (50 min)',
+    'followup' => 'Follow-up Session (50 min)',
+    'assessment' => 'Diagnostic Assessment (60 min)',
+    'crisis' => 'Crisis Support (30 min)',
+    'therapy' => 'Therapy Session (50 min)'
   }.freeze
+
+  # Minimum hours before appointment to allow cancellation
+  CANCELLATION_WINDOW_HOURS = 24
 
   # Validations
   validates :scheduled_at, presence: true
@@ -113,7 +117,29 @@ class Appointment < ApplicationRecord
   # @return [Boolean]
   #
   def cancellable?
-    ['scheduled', 'confirmed'].include?(status) && scheduled_at > Time.current
+    can_cancel?
+  end
+
+  ##
+  # Checks if appointment can be cancelled (24 hour window)
+  #
+  # @return [Boolean]
+  #
+  def can_cancel?
+    ['scheduled', 'confirmed'].include?(status) &&
+      scheduled_at > Time.current &&
+      scheduled_at > CANCELLATION_WINDOW_HOURS.hours.from_now
+  end
+
+  ##
+  # Checks if appointment can be rescheduled
+  #
+  # @return [Boolean]
+  #
+  def can_reschedule?
+    ['scheduled', 'confirmed'].include?(status) &&
+      scheduled_at > Time.current &&
+      scheduled_at > CANCELLATION_WINDOW_HOURS.hours.from_now
   end
 
   ##

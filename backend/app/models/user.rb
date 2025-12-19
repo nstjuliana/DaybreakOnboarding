@@ -31,6 +31,8 @@ class User < ApplicationRecord
   # Associations
   has_many :assessments, dependent: :destroy
   has_many :appointments, dependent: :destroy
+  has_one :insurance_card, dependent: :destroy
+  has_one :patient, dependent: :destroy
 
   # User type definitions
   USER_TYPES = {

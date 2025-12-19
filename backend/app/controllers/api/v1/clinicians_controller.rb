@@ -66,7 +66,79 @@ module Api
         end
       end
 
+      ##
+      # Matches clinicians to user based on assessment and preferences
+      #
+      # POST /api/v1/clinicians/match
+      #
+      # @return [JSON] Array of matched clinicians with scores
+      #
+      def match
+        authenticate_user!
+
+        service = Scheduling::MatchClinicianService.new(
+          current_user,
+          current_user.latest_assessment,
+          match_preferences
+        )
+
+        matches = service.match
+
+        if matches.any?
+          render_success(
+            matches.map do |match|
+              {
+                clinician: clinician_response(match[:clinician]),
+                score: match[:score],
+                reasons: match[:reasons]
+              }
+            end
+          )
+        else
+          render_error('No matching clinicians found', status: :not_found)
+        end
+      end
+
+      ##
+      # Returns availability for a specific clinician
+      #
+      # GET /api/v1/clinicians/:id/availability
+      #
+      # @param start_date [String] Start date (default: today)
+      # @param end_date [String] End date (default: 2 weeks from start)
+      #
+      # @return [JSON] Available time slots
+      #
+      def availability
+        clinician = Clinician.kept.find(params[:id])
+
+        start_date = params[:start_date]&.to_date || Date.current
+        end_date = params[:end_date]&.to_date || (start_date + 14.days)
+
+        service = Scheduling::AvailabilityService.new(clinician, start_date, end_date)
+        slots = service.available_slots
+
+        render_success({
+                         clinician_id: clinician.id,
+                         start_date: start_date,
+                         end_date: end_date,
+                         slots: slots
+                       })
+      end
+
       private
+
+      ##
+      # Extracts match preferences from params
+      #
+      # @return [Hash] User preferences for matching
+      #
+      def match_preferences
+        {
+          preferred_times: params[:preferred_times],
+          gender_preference: params[:gender_preference]
+        }.compact
+      end
 
       ##
       # Formats clinician data for API response
