@@ -1,24 +1,34 @@
 /**
  * @file Phase 2 Page
- * @description Static Screener - PSC-17 assessment form.
- *              Collects mental health screening data.
+ * @description AI-powered screener assessment with chat interface.
+ *              Includes fallback to static form based on user preference.
  *
  * @see {@link _docs/user-flow.md} Phase 2: Holistic Intake
  */
 
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, MessageCircle, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useOnboarding } from '@/stores/onboarding-store';
 import { ScreenerForm } from '@/components/forms/screener-form';
+import { ChatContainer } from '@/components/chat/chat-container';
+import { SafetyPivot } from '@/components/onboarding/safety-pivot';
+import { useChat } from '@/hooks/use-chat';
 import type { Responses } from '@/lib/utils/score-calculator';
+import type { QuickReplyOption } from '@/components/chat/quick-replies';
+import { cn } from '@/lib/utils';
 
 /**
- * Phase 2: Static Screener page
- * PSC-17 assessment questionnaire
+ * Assessment mode options
+ */
+type AssessmentMode = 'chat' | 'form';
+
+/**
+ * Phase 2: Screener page
+ * Supports both AI chat and static form modes
  */
 export default function Phase2Page() {
   const router = useRouter();
@@ -28,7 +38,33 @@ export default function Phase2Page() {
     completePhase,
     setAssessmentResponses,
     saveProgress,
+    setPreferChatMode,
   } = useOnboarding();
+
+  const [mode, setMode] = useState<AssessmentMode>(
+    state.preferChatMode ? 'chat' : 'form'
+  );
+  const [showSafetyPivot, setShowSafetyPivot] = useState(false);
+  const [riskLevel, setRiskLevel] = useState<'high' | 'critical'>('high');
+  const greetingInitializedRef = useRef(false);
+
+  // Chat hook for AI mode
+  const {
+    messages,
+    isTyping,
+    isSending,
+    quickReplies,
+    sendMessage,
+    sendQuickReply,
+    addMessage,
+    setQuickReplies,
+  } = useChat({
+    conversationId: state.conversationId || undefined,
+    onAIResponse: (message) => {
+      // Check for crisis in AI response metadata
+      // This would be passed from backend
+    },
+  });
 
   // Set current phase and redirect if prerequisites not met
   useEffect(() => {
@@ -40,41 +76,100 @@ export default function Phase2Page() {
     }
   }, [setPhase, state.userType, router]);
 
-  // Don't render until we have user type
-  if (!state.userType) {
-    return null;
-  }
-
   /**
-   * Handles saving progress as user answers questions
-   * Memoized to prevent unnecessary re-renders and uses setTimeout
-   * to batch state updates properly
+   * Handles static form save progress
    */
-  const handleSaveProgress = useCallback(
+  const handleFormSaveProgress = useCallback(
     (responses: Responses) => {
       setAssessmentResponses(responses);
-      // Defer saveProgress to next tick to avoid batching issues
       setTimeout(() => saveProgress(), 0);
     },
     [setAssessmentResponses, saveProgress]
   );
 
   /**
-   * Handles form submission
+   * Gets greeting message based on context
    */
-  async function handleSubmit(
+  const getGreetingMessage = useCallback((): string => {
+    const isMinor = state.userType === 'minor';
+    return `Hi there! 👋 I'm here to guide you through a quick wellness check. This will help us understand how we can best support ${isMinor ? 'you' : 'your child'}.\n\nI'll ask you some questions, and you can answer however feels most natural. There are no right or wrong answers.\n\nReady to begin?`;
+  }, [state.userType]);
+
+  /**
+   * Gets initial quick replies
+   */
+  const getInitialQuickReplies = useCallback((): QuickReplyOption[] => {
+    return [
+      { value: 1, label: "Yes, I'm ready" },
+      { value: 0, label: 'Tell me more first' },
+    ];
+  }, []);
+
+  // Initialize chat with greeting (only once)
+  useEffect(() => {
+    if (mode === 'chat' && messages.length === 0 && !greetingInitializedRef.current) {
+      greetingInitializedRef.current = true;
+      
+      // Add initial AI greeting
+      addMessage({
+        id: `greeting-${Date.now()}`,
+        sender: 'ai',
+        content: getGreetingMessage(),
+        timestamp: new Date(),
+      });
+
+      // Set initial quick replies based on screener type
+      setQuickReplies(getInitialQuickReplies());
+    }
+  }, [mode, messages.length, addMessage, setQuickReplies, getGreetingMessage, getInitialQuickReplies]);
+
+  // Don't render until we have user type
+  if (!state.userType) {
+    return null;
+  }
+
+  /**
+   * Handles mode toggle
+   */
+  function handleModeToggle(newMode: AssessmentMode) {
+    setMode(newMode);
+    setPreferChatMode(newMode === 'chat');
+  }
+
+  /**
+   * Handles chat message send
+   */
+  async function handleSendMessage(content: string) {
+    await sendMessage(content);
+    // Quick replies would be updated by the AI response handler
+  }
+
+  /**
+   * Handles quick reply selection
+   */
+  async function handleQuickReply(option: QuickReplyOption) {
+    await sendQuickReply(option);
+  }
+
+  /**
+   * Handles safety pivot confirmation
+   */
+  function handleSafetyConfirm() {
+    setShowSafetyPivot(false);
+    // Resume conversation or allow form completion
+  }
+
+  /**
+   * Handles static form submission
+   */
+  async function handleFormSubmit(
     responses: Responses,
     score: number,
     severity: string
   ) {
-    // Save final responses
     setAssessmentResponses(responses);
-
-    // In a real implementation, we'd submit to the API here
-    // For MVP, we just store locally and proceed
     console.log('Assessment submitted:', { responses, score, severity });
 
-    // Mark phase complete and navigate
     completePhase('phase-2');
     setPhase('phase-3');
     router.push('/phase-3/account');
@@ -84,13 +179,24 @@ export default function Phase2Page() {
    * Handles back navigation
    */
   function handleBack() {
-    router.push('/phase-1');
+    router.push('/phase-1-5');
+  }
+
+  // Show safety pivot if triggered
+  if (showSafetyPivot) {
+    return (
+      <SafetyPivot
+        riskLevel={riskLevel}
+        onConfirmSafe={handleSafetyConfirm}
+        onExit={() => router.push('/')}
+      />
+    );
   }
 
   return (
     <div className="flex flex-col items-center animate-fade-in">
       {/* Header */}
-      <div className="text-center mb-8 max-w-xl">
+      <div className="text-center mb-6 max-w-xl">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
           Quick Assessment
         </h1>
@@ -100,12 +206,30 @@ export default function Phase2Page() {
         </p>
       </div>
 
-      {/* Screener form */}
-      <ScreenerForm
-        initialResponses={state.assessmentResponses}
-        onSubmit={handleSubmit}
-        onSaveProgress={handleSaveProgress}
-      />
+      {/* Mode toggle */}
+      <ModeToggle mode={mode} onModeChange={handleModeToggle} />
+
+      {/* Assessment content */}
+      <div className="w-full max-w-2xl mt-6">
+        {mode === 'chat' ? (
+          <ChatContainer
+            messages={messages}
+            isTyping={isTyping}
+            isSending={isSending}
+            onSendMessage={handleSendMessage}
+            quickReplies={quickReplies}
+            onQuickReply={handleQuickReply}
+            inputPlaceholder="Type your response..."
+            className="h-[500px]"
+          />
+        ) : (
+          <ScreenerForm
+            initialResponses={state.assessmentResponses}
+            onSubmit={handleFormSubmit}
+            onSaveProgress={handleFormSaveProgress}
+          />
+        )}
+      </div>
 
       {/* Back button */}
       <div className="mt-8">
@@ -127,3 +251,46 @@ export default function Phase2Page() {
   );
 }
 
+/**
+ * Mode toggle component
+ */
+function ModeToggle({
+  mode,
+  onModeChange,
+}: {
+  mode: AssessmentMode;
+  onModeChange: (mode: AssessmentMode) => void;
+}) {
+  return (
+    <div className="flex items-center gap-2 p-1 bg-neutral-100 rounded-lg">
+      <button
+        type="button"
+        onClick={() => onModeChange('chat')}
+        className={cn(
+          'flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors',
+          mode === 'chat'
+            ? 'bg-white text-primary-600 shadow-sm'
+            : 'text-neutral-600 hover:text-neutral-800'
+        )}
+        aria-pressed={mode === 'chat'}
+      >
+        <MessageCircle className="w-4 h-4" />
+        Chat with AI
+      </button>
+      <button
+        type="button"
+        onClick={() => onModeChange('form')}
+        className={cn(
+          'flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors',
+          mode === 'form'
+            ? 'bg-white text-primary-600 shadow-sm'
+            : 'text-neutral-600 hover:text-neutral-800'
+        )}
+        aria-pressed={mode === 'form'}
+      >
+        <FileText className="w-4 h-4" />
+        Standard Form
+      </button>
+    </div>
+  );
+}

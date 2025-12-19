@@ -35,6 +35,11 @@ const STORAGE_KEY = 'state';
 export type AssessmentResponses = Record<string, number>;
 
 /**
+ * Screener type options
+ */
+export type ScreenerType = 'psc17' | 'phq9a' | 'scared';
+
+/**
  * Onboarding state shape
  */
 export interface OnboardingState {
@@ -56,6 +61,12 @@ export interface OnboardingState {
   hasSavedProgress: boolean;
   /** Timestamp of last save */
   lastSavedAt: string | null;
+  /** Conversation ID for AI chat mode */
+  conversationId: string | null;
+  /** Selected screener type based on triage */
+  screenerType: ScreenerType;
+  /** User preference for chat vs static form */
+  preferChatMode: boolean;
 }
 
 /**
@@ -71,6 +82,9 @@ const initialState: OnboardingState = {
   clinicianId: null,
   hasSavedProgress: false,
   lastSavedAt: null,
+  conversationId: null,
+  screenerType: 'psc17',
+  preferChatMode: true,
 };
 
 /**
@@ -87,6 +101,9 @@ type OnboardingAction =
   | { type: 'SET_CLINICIAN_ID'; payload: string }
   | { type: 'LOAD_SAVED_STATE'; payload: OnboardingState }
   | { type: 'MARK_SAVED'; payload: string }
+  | { type: 'SET_CONVERSATION_ID'; payload: string }
+  | { type: 'SET_SCREENER_TYPE'; payload: ScreenerType }
+  | { type: 'SET_PREFER_CHAT_MODE'; payload: boolean }
   | { type: 'RESET' };
 
 /**
@@ -133,6 +150,15 @@ function onboardingReducer(
     case 'SET_CLINICIAN_ID':
       return { ...state, clinicianId: action.payload };
 
+    case 'SET_CONVERSATION_ID':
+      return { ...state, conversationId: action.payload };
+
+    case 'SET_SCREENER_TYPE':
+      return { ...state, screenerType: action.payload };
+
+    case 'SET_PREFER_CHAT_MODE':
+      return { ...state, preferChatMode: action.payload };
+
     case 'LOAD_SAVED_STATE':
       return { ...action.payload, hasSavedProgress: true };
 
@@ -164,6 +190,9 @@ interface OnboardingContextValue {
   updateAssessmentResponse: (questionId: string, value: number) => void;
   setAssessmentId: (id: string) => void;
   setClinicianId: (id: string) => void;
+  setConversationId: (id: string) => void;
+  setScreenerType: (type: ScreenerType) => void;
+  setPreferChatMode: (prefer: boolean) => void;
   saveProgress: () => void;
   loadSavedProgress: () => boolean;
   clearProgress: () => void;
@@ -241,6 +270,18 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     dispatch({ type: 'SET_CLINICIAN_ID', payload: id });
   }, []);
 
+  const setConversationId = useCallback((id: string) => {
+    dispatch({ type: 'SET_CONVERSATION_ID', payload: id });
+  }, []);
+
+  const setScreenerType = useCallback((type: ScreenerType) => {
+    dispatch({ type: 'SET_SCREENER_TYPE', payload: type });
+  }, []);
+
+  const setPreferChatMode = useCallback((prefer: boolean) => {
+    dispatch({ type: 'SET_PREFER_CHAT_MODE', payload: prefer });
+  }, []);
+
   const saveProgress = useCallback(() => {
     const timestamp = new Date().toISOString();
     saveToStorage(STORAGE_KEY, { ...state, lastSavedAt: timestamp });
@@ -275,6 +316,9 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     updateAssessmentResponse,
     setAssessmentId,
     setClinicianId,
+    setConversationId,
+    setScreenerType,
+    setPreferChatMode,
     saveProgress,
     loadSavedProgress,
     clearProgress,
