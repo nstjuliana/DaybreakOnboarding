@@ -549,3 +549,4 @@ After successful launch:
 
 With a team of 2-3 developers working in parallel, this could be reduced to **8-10 weeks**.
 
+

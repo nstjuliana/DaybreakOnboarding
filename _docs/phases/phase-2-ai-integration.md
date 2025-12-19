@@ -506,3 +506,4 @@ backend/
 
 Upon completion, proceed to **Phase 3: Insurance, Matching & Scheduling** to implement insurance capture (including OCR), clinician matching algorithm, and appointment scheduling.
 
+
