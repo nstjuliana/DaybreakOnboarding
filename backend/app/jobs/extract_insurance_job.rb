@@ -58,3 +58,4 @@ class ExtractInsuranceJob < ApplicationJob
     raise
   end
 end
+

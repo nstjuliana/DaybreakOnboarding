@@ -44,7 +44,9 @@ module DaybreakOnboarding
     end
 
     # Background jobs
-    config.active_job.queue_adapter = :good_job
+    # Use :async for development (runs jobs in-process)
+    # In production, configure a proper adapter like :good_job or :sidekiq
+    config.active_job.queue_adapter = :async
 
     # Action Cable
     config.action_cable.mount_path = '/cable'
