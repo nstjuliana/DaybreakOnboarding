@@ -48,6 +48,19 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1";
 
 /**
+ * Storage key for JWT token (must match auth.ts)
+ */
+const TOKEN_STORAGE_KEY = 'daybreak_auth_token';
+
+/**
+ * Gets the stored authentication token
+ */
+function getAuthToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(TOKEN_STORAGE_KEY);
+}
+
+/**
  * Default headers for API requests
  */
 const DEFAULT_HEADERS: HeadersInit = {
@@ -74,12 +87,21 @@ export async function apiFetch<T>(
 ): Promise<ApiResponse<T>> {
   const url = `${API_BASE_URL}${endpoint}`;
 
+  // Build headers with auth token if available
+  const headers: HeadersInit = {
+    ...DEFAULT_HEADERS,
+    ...options.headers,
+  };
+
+  // Add auth token if available
+  const token = getAuthToken();
+  if (token) {
+    (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+  }
+
   const config: RequestInit = {
     ...options,
-    headers: {
-      ...DEFAULT_HEADERS,
-      ...options.headers,
-    },
+    headers,
   };
 
   try {
@@ -168,4 +190,5 @@ export function apiDelete<T>(
 ): Promise<ApiResponse<T>> {
   return apiFetch<T>(endpoint, { ...options, method: "DELETE" });
 }
+
 

@@ -22,3 +22,4 @@ export async function getHealthStatus() {
   return apiGet<HealthStatus>("/health");
 }
 
+

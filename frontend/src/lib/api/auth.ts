@@ -103,13 +103,22 @@ export async function register(data: RegisterData): Promise<AuthResponse> {
     }),
   });
 
-  const result: ApiResponse<User> = await response.json();
+  const result = await response.json() as ApiResponse<User> & { errors?: string[]; token?: string };
 
   if (!response.ok || !result.success) {
-    throw new Error(result.error || 'Registration failed');
+    // Show detailed validation errors if available
+    const errorMessage = result.errors?.length
+      ? result.errors.join('. ')
+      : (result.error || 'Registration failed');
+    throw new Error(errorMessage);
   }
 
-  const token = extractTokenFromResponse(response);
+  // Try to get token from header first, then from response body
+  let token = extractTokenFromResponse(response);
+  if (!token && result.token) {
+    token = result.token;
+  }
+  
   if (token) {
     setAuthToken(token);
   }
@@ -152,13 +161,18 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
     }),
   });
 
-  const result: ApiResponse<User> = await response.json();
+  const result = await response.json() as ApiResponse<User> & { token?: string };
 
   if (!response.ok || !result.success) {
     throw new Error(result.error || 'Invalid email or password');
   }
 
-  const token = extractTokenFromResponse(response);
+  // Try to get token from header first, then from response body
+  let token = extractTokenFromResponse(response);
+  if (!token && result.token) {
+    token = result.token;
+  }
+  
   if (token) {
     setAuthToken(token);
   }
