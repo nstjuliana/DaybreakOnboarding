@@ -23,6 +23,7 @@ gem 'solid_queue'
 
 # API & Serialization
 gem 'jbuilder'
+gem 'jsonapi-serializer', '~> 2.2' # JSON:API compliant serialization
 gem 'oj' # Fast JSON parsing
 gem 'rack-attack'
 gem 'rack-cors'
