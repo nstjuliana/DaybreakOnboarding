@@ -34,8 +34,8 @@ Rails.application.configure do
     config.cache_store = :null_store
   end
 
-  # Active Storage (only if enabled)
-  # config.active_storage.service = :local
+  # Active Storage - use local disk storage in development
+  config.active_storage.service = :local
 
   # Action Mailer - use letter_opener for development
   config.action_mailer.raise_delivery_errors = true

@@ -41,6 +41,7 @@ gem 'ruby-openai'
 # (GoodJob already included above)
 
 # File Storage
+gem 'active_storage_validations', '~> 1.1'
 gem 'aws-sdk-s3', '~> 1.140'
 gem 'aws-sdk-textract', '~> 1.60'
 
