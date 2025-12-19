@@ -47,4 +47,3 @@ class SendAppointmentReminderJob < ApplicationJob
     )
   end
 end
-

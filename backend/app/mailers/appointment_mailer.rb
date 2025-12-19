@@ -79,4 +79,3 @@ class AppointmentMailer < ApplicationMailer
     )
   end
 end
-

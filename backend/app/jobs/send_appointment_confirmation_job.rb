@@ -36,4 +36,3 @@ class SendAppointmentConfirmationJob < ApplicationJob
     )
   end
 end
-

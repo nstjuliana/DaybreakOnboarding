@@ -48,4 +48,3 @@ class InsuranceCardPolicy < ApplicationPolicy
     record.user_id == user.id
   end
 end
-

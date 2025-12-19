@@ -158,4 +158,3 @@ class Patient < ApplicationRecord
     end
   end
 end
-
