@@ -34,3 +34,4 @@ class PatientPolicy < ApplicationPolicy
     record.user_id == user.id
   end
 end
+

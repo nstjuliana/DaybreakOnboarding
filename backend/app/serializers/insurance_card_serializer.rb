@@ -59,3 +59,4 @@ class InsuranceCardSerializer
     end
   end
 end
+

@@ -198,3 +198,4 @@ class InsuranceCard < ApplicationRecord
     has_insurance? && verified?
   end
 end
+
