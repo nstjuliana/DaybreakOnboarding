@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #1F1F1E;
+      background-color: #FAFAF8;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    .card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #E8A854 0%, #D4915D 100%);
+      padding: 32px;
+      text-align: center;
+    }
+    .header h1 {
+      color: #FFFFFF;
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .reminder-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      margin-top: 16px;
+    }
+    .content {
+      padding: 32px;
+    }
+    .appointment-details {
+      background: #FEF7ED;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+    }
+    .detail-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .detail-row:last-child {
+      margin-bottom: 0;
+    }
+    .detail-icon {
+      width: 40px;
+      height: 40px;
+      background: #FFFFFF;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 16px;
+    }
+    .detail-text strong {
+      display: block;
+      color: #1F1F1E;
+    }
+    .detail-text span {
+      color: #5A5A57;
+      font-size: 14px;
+    }
+    .cta-button {
+      display: inline-block;
+      background: #2D5A7B;
+      color: #FFFFFF !important;
+      padding: 14px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    .footer {
+      text-align: center;
+      padding: 24px;
+      color: #A3A39E;
+      font-size: 12px;
+    }
+    .footer a {
+      color: #2D5A7B;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <!-- Header -->
+      <div class="header">
+        <h1>Appointment Tomorrow</h1>
+        <div class="reminder-badge">🔔 Reminder</div>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <p>
+          Hi <%= @user.first_name || 'there' %>,
+        </p>
+
+        <p>
+          This is a friendly reminder that your appointment with
+          <strong><%= @clinician.display_name %></strong> is <strong>tomorrow</strong>.
+        </p>
+
+        <!-- Appointment Details -->
+        <div class="appointment-details">
+          <div class="detail-row">
+            <div class="detail-icon">📅</div>
+            <div class="detail-text">
+              <strong><%= @appointment.scheduled_at.strftime('%A, %B %d, %Y') %></strong>
+              <span>Tomorrow</span>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-icon">🕐</div>
+            <div class="detail-text">
+              <strong><%= @appointment.scheduled_at.strftime('%I:%M %p %Z') %></strong>
+              <span><%= @appointment.duration_minutes %> minutes</span>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-icon">👤</div>
+            <div class="detail-text">
+              <strong><%= @clinician.display_name %></strong>
+              <span><%= @clinician.credentials %></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Join Button -->
+        <div style="text-align: center;">
+          <a href="<%= @appointment.telehealth_url %>" class="cta-button">
+            Join Video Session Tomorrow
+          </a>
+        </div>
+
+        <p style="margin-top: 24px; color: #5A5A57; font-size: 14px;">
+          <strong>Quick reminders:</strong>
+        </p>
+        <ul style="color: #5A5A57; font-size: 14px;">
+          <li>Find a quiet, private space</li>
+          <li>Test your camera and microphone</li>
+          <li>Join a few minutes early</li>
+        </ul>
+
+        <p style="margin-top: 24px; color: #5A5A57; font-size: 14px;">
+          Need to reschedule? Please
+          <a href="mailto:support@daybreakhealth.com" style="color: #2D5A7B;">contact us</a>
+          as soon as possible.
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p>
+          Daybreak Health • Supporting your mental health journey<br>
+          <a href="https://daybreakhealth.com">daybreakhealth.com</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
