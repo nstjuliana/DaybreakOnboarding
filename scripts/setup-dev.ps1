@@ -172,3 +172,4 @@ Write-Host "  make test         - Run all tests" -ForegroundColor White
 Write-Host "  docker compose ps - Check service status" -ForegroundColor White
 Write-Host ""
 
+

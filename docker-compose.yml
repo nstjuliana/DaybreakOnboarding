@@ -59,6 +59,9 @@ services:
       FRONTEND_URL: http://localhost:3001
       RAILS_MAX_THREADS: 5
       RAILS_LOG_TO_STDOUT: "true"
+      # JWT secret key for devise-jwt authentication
+      SECRET_KEY_BASE: "development_secret_key_base_for_jwt_token_signing_do_not_use_in_production"
+      DEVISE_JWT_SECRET_KEY: "development_jwt_secret_key_for_token_signing_do_not_use_in_production"
     ports:
       - "3000:3000"
     volumes:
@@ -72,6 +75,7 @@ services:
         rm -f /app/tmp/pids/server.pid &&
         bundle install &&
         bundle exec rails db:prepare &&
+        bundle exec rails db:seed &&
         bundle exec rails server -b 0.0.0.0 -p 3000
       "
 

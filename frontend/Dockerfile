@@ -42,6 +42,10 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
+# Build argument for API URL (must be set at build time for NEXT_PUBLIC_* vars)
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
 # Build the application
 RUN npm run build
 
@@ -112,4 +116,5 @@ EXPOSE 3000
 
 # Start development server
 CMD ["npm", "run", "dev"]
+
 
