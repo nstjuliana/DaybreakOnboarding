@@ -1,0 +1,172 @@
+# Crisis Keywords Configuration
+# Categorized keywords for crisis detection
+# Used by AI::CrisisDetector service
+
+# Risk Level: CRITICAL
+# Immediate danger indicators - requires safety pivot
+critical:
+  suicide_explicit:
+    - suicide
+    - suicidal
+    - kill myself
+    - end my life
+    - end it all
+    - want to die
+    - better off dead
+    - take my own life
+    - dont want to be here
+    - don't want to be here
+    - wish i was dead
+    - wish I was dead
+    - rather be dead
+
+  self_harm_active:
+    - cutting myself
+    - hurting myself
+    - going to hurt myself
+    - burning myself
+    - hitting myself
+    - punching myself
+    - making myself bleed
+
+  immediate_danger:
+    - have a plan
+    - know how i will
+    - going to do it tonight
+    - final goodbye
+    - this is goodbye
+    - last message
+    - written a note
+    - saying goodbye to everyone
+
+  methods:
+    - overdose
+    - pills
+    - slit my wrists
+    - jump off
+    - hang myself
+    - shoot myself
+    - gun
+
+# Risk Level: HIGH
+# Serious concern - show safety resources
+high:
+  self_harm_ideation:
+    - want to hurt myself
+    - feel like cutting
+    - think about hurting myself
+    - self harm
+    - self-harm
+    - thought about cutting
+    - urge to hurt myself
+
+  abuse_indicators:
+    - being abused
+    - someone hurts me
+    - hitting me
+    - beats me
+    - touches me inappropriately
+    - makes me do things
+    - scared of them
+    - threatens me
+    - molested
+    - assaulted
+
+  severe_distress:
+    - cant take it anymore
+    - can't take it anymore
+    - cant go on
+    - can't go on
+    - no way out
+    - feel trapped
+    - no reason to live
+    - nothing matters anymore
+    - completely hopeless
+    - unbearable pain
+
+# Risk Level: MEDIUM  
+# Elevated concern - monitor closely
+medium:
+  hopelessness:
+    - hopeless
+    - no hope
+    - never get better
+    - always be like this
+    - giving up
+    - whats the point
+    - what's the point
+    - why bother
+    - dont care anymore
+    - don't care anymore
+
+  worthlessness:
+    - worthless
+    - useless
+    - im a burden
+    - i'm a burden
+    - everyone hates me
+    - no one cares about me
+    - better without me
+    - dont deserve
+    - don't deserve
+    - complete failure
+    - hate myself
+
+  isolation:
+    - all alone
+    - completely alone
+    - no one understands
+    - nobody to talk to
+    - no friends
+    - no one to help
+    - abandoned
+    - left behind
+
+# Risk Level: LOW
+# Minor concern - respond with empathy
+low:
+  general_distress:
+    - so sad
+    - really sad
+    - very depressed
+    - extremely anxious
+    - cant cope
+    - can't cope
+    - overwhelmed
+    - breaking down
+    - falling apart
+    - struggling a lot
+
+  sleep_distress:
+    - cant sleep at all
+    - can't sleep at all
+    - nightmares every night
+    - afraid to sleep
+    - havent slept
+    - haven't slept
+
+# Modifiers that increase severity
+modifiers:
+  intensifiers:
+    - always
+    - never
+    - every day
+    - every single day
+    - constantly
+    - all the time
+    - worst ever
+
+  temporal:
+    - right now
+    - today
+    - tonight
+    - this moment
+    - immediately
+
+  certainty:
+    - definitely
+    - for sure
+    - i know i will
+    - going to
+    - decided to
+
