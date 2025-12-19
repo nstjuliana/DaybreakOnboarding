@@ -18,14 +18,21 @@ module Api
       # GET /api/v1/clinicians
       #
       # @param [String] specialty Filter by specialty (optional)
+      # @param [String] insurance Filter by insurance provider (optional)
+      # @param [Boolean] self_pay Filter to self-pay friendly clinicians (optional)
+      # @param [Boolean] sliding_scale Filter to sliding scale clinicians (optional)
       #
       # @return [JSON] Array of clinician data
       #
       def index
         clinicians = Clinician.active.kept
 
-        # Optional specialty filter
+        # Optional filters
         clinicians = clinicians.with_specialty(params[:specialty]) if params[:specialty].present?
+        clinicians = clinicians.accepts_insurance(params[:insurance]) if params[:insurance].present?
+        clinicians = clinicians.self_pay_friendly if params[:self_pay] == 'true'
+        clinicians = clinicians.sliding_scale if params[:sliding_scale] == 'true'
+        clinicians = clinicians.uninsured_friendly if params[:uninsured_friendly] == 'true'
 
         clinicians = paginate(clinicians.order(:last_name))
 
@@ -49,15 +56,24 @@ module Api
 
       ##
       # Returns a random active clinician for matching
-      # In MVP, this is simple random selection.
-      # Future: Will use assessment results for intelligent matching.
+      # Considers insurance status for better matching.
       #
       # GET /api/v1/clinicians/random
+      #
+      # @param [String] insurance_status User's insurance status (optional)
+      # @param [String] insurance_provider Specific insurance provider (optional)
       #
       # @return [JSON] Random clinician data
       #
       def random
-        clinician = Clinician.random_active
+        clinician = if params[:insurance_status].present?
+                      Clinician.random_for_insurance(
+                        params[:insurance_status],
+                        params[:insurance_provider]
+                      )
+                    else
+                      Clinician.random_active
+                    end
 
         if clinician
           render_success(clinician_response(clinician))
@@ -158,7 +174,10 @@ module Api
           photo_url: clinician.photo_url,
           video_url: clinician.video_url,
           specialties: clinician.specialties,
-          status: clinician.status
+          status: clinician.status,
+          accepted_insurances: clinician.accepted_insurances,
+          accepts_self_pay: clinician.accepts_self_pay,
+          offers_sliding_scale: clinician.offers_sliding_scale
         }
       end
     end

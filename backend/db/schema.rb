@@ -10,10 +10,38 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2024_12_19_000006) do
+ActiveRecord::Schema[8.1].define(version: 2024_12_19_000008) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
+
+  create_table "active_storage_attachments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.uuid "record_id", null: false
+    t.string "record_type", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.string "content_type"
+    t.datetime "created_at", null: false
+    t.string "filename", null: false
+    t.string "key", null: false
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
 
   create_table "appointments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "assessment_id"
@@ -65,6 +93,8 @@ ActiveRecord::Schema[8.1].define(version: 2024_12_19_000006) do
   end
 
   create_table "clinicians", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "accepted_insurances", default: [], array: true
+    t.boolean "accepts_self_pay", default: true, null: false
     t.jsonb "availability", default: {}
     t.text "bio"
     t.datetime "created_at", null: false
@@ -73,13 +103,17 @@ ActiveRecord::Schema[8.1].define(version: 2024_12_19_000006) do
     t.string "email"
     t.string "first_name", null: false
     t.string "last_name", null: false
+    t.boolean "offers_sliding_scale", default: false, null: false
     t.string "phone"
     t.string "photo_url"
     t.string "specialties", default: [], array: true
     t.string "status", default: "active", null: false
     t.datetime "updated_at", null: false
     t.string "video_url"
+    t.index ["accepted_insurances"], name: "index_clinicians_on_accepted_insurances", using: :gin
+    t.index ["accepts_self_pay"], name: "index_clinicians_on_accepts_self_pay"
     t.index ["discarded_at"], name: "index_clinicians_on_discarded_at"
+    t.index ["offers_sliding_scale"], name: "index_clinicians_on_offers_sliding_scale"
     t.index ["specialties"], name: "index_clinicians_on_specialties", using: :gin
     t.index ["status"], name: "index_clinicians_on_status"
   end
@@ -275,6 +309,8 @@ ActiveRecord::Schema[8.1].define(version: 2024_12_19_000006) do
     t.index ["user_type"], name: "index_users_on_user_type"
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appointments", "assessments"
   add_foreign_key "appointments", "clinicians"
   add_foreign_key "appointments", "users"

@@ -14,6 +14,8 @@
 #     last_name: 'Johnson',
 #     credentials: 'LCSW',
 #     specialties: ['anxiety', 'depression', 'adolescents'],
+#     accepted_insurances: ['Aetna', 'Blue Cross Blue Shield', 'United Healthcare'],
+#     accepts_self_pay: true,
 #     bio: 'I specialize in helping teens navigate anxiety...'
 #   )
 #
@@ -30,6 +32,22 @@ class Clinician < ApplicationRecord
     'on_leave' => 'Temporarily unavailable'
   }.freeze
 
+  # Common insurance providers
+  COMMON_INSURANCES = [
+    'Aetna',
+    'Anthem',
+    'Blue Cross Blue Shield',
+    'Cigna',
+    'Humana',
+    'Kaiser Permanente',
+    'Medicaid',
+    'Medicare',
+    'Molina Healthcare',
+    'Oscar Health',
+    'Tricare',
+    'United Healthcare'
+  ].freeze
+
   # Validations
   validates :first_name, presence: true
   validates :last_name, presence: true
@@ -39,6 +57,10 @@ class Clinician < ApplicationRecord
   # Scopes
   scope :active, -> { where(status: 'active') }
   scope :with_specialty, ->(specialty) { where('? = ANY(specialties)', specialty) }
+  scope :accepts_insurance, ->(provider) { where('? = ANY(accepted_insurances)', provider) }
+  scope :self_pay_friendly, -> { where(accepts_self_pay: true) }
+  scope :sliding_scale, -> { where(offers_sliding_scale: true) }
+  scope :uninsured_friendly, -> { where(accepts_self_pay: true).or(where(offers_sliding_scale: true)) }
 
   ##
   # Returns the clinician's full display name with credentials
@@ -79,6 +101,30 @@ class Clinician < ApplicationRecord
   end
 
   ##
+  # Checks if clinician accepts a specific insurance provider
+  #
+  # @param provider [String] The insurance provider to check
+  # @return [Boolean]
+  #
+  def accepts_insurance?(provider)
+    return false if provider.blank?
+
+    accepted_insurances.any? do |insurance|
+      insurance.downcase.include?(provider.to_s.downcase) ||
+        provider.to_s.downcase.include?(insurance.downcase)
+    end
+  end
+
+  ##
+  # Checks if clinician is suitable for uninsured patients
+  #
+  # @return [Boolean]
+  #
+  def uninsured_friendly?
+    accepts_self_pay? || offers_sliding_scale?
+  end
+
+  ##
   # Returns a random active clinician
   # Used for MVP matching before real matching logic is implemented
   #
@@ -86,5 +132,33 @@ class Clinician < ApplicationRecord
   #
   def self.random_active
     active.kept.order('RANDOM()').first
+  end
+
+  ##
+  # Returns a random active clinician matching insurance criteria
+  #
+  # @param insurance_status [String] User's insurance status ('insured', 'self_pay', 'uninsured')
+  # @param provider [String, nil] Optional insurance provider name
+  # @return [Clinician, nil]
+  #
+  def self.random_for_insurance(insurance_status, provider = nil)
+    base = active.kept
+
+    case insurance_status
+    when 'insured'
+      if provider.present?
+        # Try to find in-network clinician first
+        in_network = base.accepts_insurance(provider)
+        return in_network.order('RANDOM()').first if in_network.exists?
+      end
+      # Fall back to any active clinician
+      base.order('RANDOM()').first
+    when 'self_pay'
+      base.self_pay_friendly.order('RANDOM()').first || base.order('RANDOM()').first
+    when 'uninsured'
+      base.uninsured_friendly.order('RANDOM()').first || base.order('RANDOM()').first
+    else
+      base.order('RANDOM()').first
+    end
   end
 end
