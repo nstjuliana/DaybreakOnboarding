@@ -62,9 +62,11 @@ module Api
             # Update sign in tracking
             user.update_tracked_fields!(request)
 
+            # Return token in both header AND body for CORS compatibility
             render json: {
               success: true,
-              data: user_response(user)
+              data: user_response(user),
+              token: token
             }, status: :ok, headers: { 'Authorization' => "Bearer #{token}" }
           else
             # Increment failed attempts if user exists

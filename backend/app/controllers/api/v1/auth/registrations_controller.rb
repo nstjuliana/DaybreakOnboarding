@@ -60,9 +60,11 @@ module Api
             # Generate JWT token
             token = generate_jwt_token(user)
 
+            # Return token in both header AND body for CORS compatibility
             render json: {
               success: true,
-              data: user_response(user)
+              data: user_response(user),
+              token: token
             }, status: :created, headers: { 'Authorization' => "Bearer #{token}" }
           else
             render json: {

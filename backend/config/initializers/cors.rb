@@ -11,8 +11,10 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    # Development origins
+    # Development origins - include full URLs with protocol
     origins(
+      'http://localhost:3001',
+      'http://127.0.0.1:3001',
       'localhost:3001',
       '127.0.0.1:3001',
       ENV.fetch('FRONTEND_URL', 'http://localhost:3001')
@@ -28,8 +30,16 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
 
   # Production origin (configured via environment variable)
   if Rails.env.production?
+    # Parse FRONTEND_URL which may contain multiple comma-separated origins
+    frontend_urls = ENV.fetch('FRONTEND_URL', 'https://onboarding.daybreakhealth.com')
+                       .split(',')
+                       .map(&:strip)
+
+    # Also allow Aptible default endpoints
+    aptible_pattern = /\Ahttps?:\/\/app-\d+\.on-aptible\.com\z/
+
     allow do
-      origins ENV.fetch('FRONTEND_URL', 'https://onboarding.daybreakhealth.com')
+      origins(*frontend_urls, aptible_pattern)
 
       resource '*',
                headers: :any,
