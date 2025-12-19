@@ -52,3 +52,6 @@ secrets/
 credentials.json
 
 
+
+# Cursor plan files
+.cursor/plans/
