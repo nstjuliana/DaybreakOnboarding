@@ -1,0 +1,238 @@
+/**
+ * @file globals.css
+ * @description Global styles and CSS custom properties for the Parent Onboarding AI application.
+ *              Implements the theme defined in _docs/theme-rules.md.
+ *
+ * Design Style: Warm Minimalism / Therapeutic Modern
+ */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* =============================================================================
+   Theme Configuration (Tailwind v4)
+   ============================================================================= */
+@theme inline {
+  /* Typography */
+  --font-sans: var(--font-inter), "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Color mappings for shadcn/ui compatibility */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Border radius scale */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+}
+
+/* =============================================================================
+   Light Theme (Default) - Daybreak Warm Minimalism
+   ============================================================================= */
+:root {
+  /* Base radius */
+  --radius: 0.5rem;
+
+  /* Surface colors - warm whites */
+  --background: #FAFAF8;
+  --foreground: #1F1F1E;
+  --card: #FFFFFF;
+  --card-foreground: #1F1F1E;
+  --popover: #FFFFFF;
+  --popover-foreground: #1F1F1E;
+
+  /* Primary - Trust Blue (#2D5A7B) */
+  --primary: #2D5A7B;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary - Light primary */
+  --secondary: #EDF5F8;
+  --secondary-foreground: #2D5A7B;
+
+  /* Muted - Warm neutrals */
+  --muted: #F5F5F3;
+  --muted-foreground: #5A5A57;
+
+  /* Accent - Hope Amber (#E8B87D) */
+  --accent: #FEF7ED;
+  --accent-foreground: #9A6339;
+
+  /* Destructive - Muted red (not aggressive) */
+  --destructive: #B85C5C;
+
+  /* Borders and inputs */
+  --border: #E8E8E5;
+  --input: #E8E8E5;
+  --ring: #7BA3BC;
+
+  /* Semantic colors */
+  --success: #4A7C59;
+  --success-foreground: #FFFFFF;
+  --warning: #B8860B;
+  --warning-foreground: #FFFFFF;
+  --error: #B85C5C;
+  --error-foreground: #FFFFFF;
+  --info: #3B82A0;
+  --info-foreground: #FFFFFF;
+
+  /* Daybreak brand colors */
+  --daybreak-primary-50: #EDF5F8;
+  --daybreak-primary-100: #D4E8EF;
+  --daybreak-primary-200: #A9D1DF;
+  --daybreak-primary-300: #7BA3BC;
+  --daybreak-primary-400: #4E7A94;
+  --daybreak-primary-500: #2D5A7B;
+  --daybreak-primary-600: #244A65;
+  --daybreak-primary-700: #1B3A4F;
+  --daybreak-primary-800: #122A39;
+  --daybreak-primary-900: #091A23;
+
+  --daybreak-accent-50: #FEF7ED;
+  --daybreak-accent-100: #FCECD5;
+  --daybreak-accent-200: #F8D9AB;
+  --daybreak-accent-300: #F3C07D;
+  --daybreak-accent-400: #E8A854;
+  --daybreak-accent-500: #D4915D;
+  --daybreak-accent-600: #B87A4A;
+  --daybreak-accent-700: #9A6339;
+}
+
+/* =============================================================================
+   Dark Theme (if implemented)
+   ============================================================================= */
+.dark {
+  --background: #0F0F0E;
+  --foreground: #FAFAF8;
+  --card: #1F1F1E;
+  --card-foreground: #FAFAF8;
+  --popover: #1F1F1E;
+  --popover-foreground: #FAFAF8;
+  --primary: #7BA3BC;
+  --primary-foreground: #091A23;
+  --secondary: #122A39;
+  --secondary-foreground: #D4E8EF;
+  --muted: #3D3D3B;
+  --muted-foreground: #A3A39E;
+  --accent: #3D3D3B;
+  --accent-foreground: #F3C07D;
+  --destructive: #9A4A4A;
+  --border: #3D3D3B;
+  --input: #3D3D3B;
+  --ring: #4E7A94;
+}
+
+/* =============================================================================
+   Base Styles
+   ============================================================================= */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    line-height: 1.5;
+  }
+
+  /* Focus states - WCAG compliant */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* =============================================================================
+   Custom Utility Classes
+   ============================================================================= */
+@layer utilities {
+  /* Text balance for better typography */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Container with max-width constraints */
+  .container-content {
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .container-reading {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .container-form {
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 200ms ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 300ms ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
