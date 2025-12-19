@@ -40,6 +40,11 @@ export type AssessmentResponses = Record<string, number>;
 export type ScreenerType = 'psc17' | 'phq9a' | 'scared';
 
 /**
+ * Insurance status options
+ */
+export type InsuranceStatus = 'insured' | 'self_pay' | 'uninsured' | null;
+
+/**
  * Onboarding state shape
  */
 export interface OnboardingState {
@@ -67,6 +72,10 @@ export interface OnboardingState {
   screenerType: ScreenerType;
   /** User preference for chat vs static form */
   preferChatMode: boolean;
+  /** Insurance status for clinician matching */
+  insuranceStatus: InsuranceStatus;
+  /** Specific insurance provider if insured */
+  insuranceProvider: string | null;
 }
 
 /**
@@ -85,6 +94,8 @@ const initialState: OnboardingState = {
   conversationId: null,
   screenerType: 'psc17',
   preferChatMode: true,
+  insuranceStatus: null,
+  insuranceProvider: null,
 };
 
 /**
@@ -104,6 +115,8 @@ type OnboardingAction =
   | { type: 'SET_CONVERSATION_ID'; payload: string }
   | { type: 'SET_SCREENER_TYPE'; payload: ScreenerType }
   | { type: 'SET_PREFER_CHAT_MODE'; payload: boolean }
+  | { type: 'SET_INSURANCE_STATUS'; payload: InsuranceStatus }
+  | { type: 'SET_INSURANCE_PROVIDER'; payload: string | null }
   | { type: 'RESET' };
 
 /**
@@ -159,6 +172,12 @@ function onboardingReducer(
     case 'SET_PREFER_CHAT_MODE':
       return { ...state, preferChatMode: action.payload };
 
+    case 'SET_INSURANCE_STATUS':
+      return { ...state, insuranceStatus: action.payload };
+
+    case 'SET_INSURANCE_PROVIDER':
+      return { ...state, insuranceProvider: action.payload };
+
     case 'LOAD_SAVED_STATE':
       return { ...action.payload, hasSavedProgress: true };
 
@@ -193,6 +212,8 @@ interface OnboardingContextValue {
   setConversationId: (id: string) => void;
   setScreenerType: (type: ScreenerType) => void;
   setPreferChatMode: (prefer: boolean) => void;
+  setInsuranceStatus: (status: InsuranceStatus) => void;
+  setInsuranceProvider: (provider: string | null) => void;
   saveProgress: () => void;
   loadSavedProgress: () => boolean;
   clearProgress: () => void;
@@ -282,6 +303,14 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     dispatch({ type: 'SET_PREFER_CHAT_MODE', payload: prefer });
   }, []);
 
+  const setInsuranceStatus = useCallback((status: InsuranceStatus) => {
+    dispatch({ type: 'SET_INSURANCE_STATUS', payload: status });
+  }, []);
+
+  const setInsuranceProvider = useCallback((provider: string | null) => {
+    dispatch({ type: 'SET_INSURANCE_PROVIDER', payload: provider });
+  }, []);
+
   const saveProgress = useCallback(() => {
     const timestamp = new Date().toISOString();
     saveToStorage(STORAGE_KEY, { ...state, lastSavedAt: timestamp });
@@ -319,6 +348,8 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     setConversationId,
     setScreenerType,
     setPreferChatMode,
+    setInsuranceStatus,
+    setInsuranceProvider,
     saveProgress,
     loadSavedProgress,
     clearProgress,

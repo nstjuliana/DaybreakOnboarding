@@ -72,6 +72,19 @@ export async function updateInsuranceCard(
 }
 
 /**
+ * Storage key for JWT token (must match client.ts)
+ */
+const TOKEN_STORAGE_KEY = 'daybreak_auth_token';
+
+/**
+ * Gets the stored authentication token
+ */
+function getAuthToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(TOKEN_STORAGE_KEY);
+}
+
+/**
  * Uploads insurance card images and triggers OCR extraction
  *
  * @param frontImage - Front of card image file
@@ -92,9 +105,20 @@ export async function uploadInsuranceCard(
   const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
 
+  // Build headers with auth token
+  const headers: HeadersInit = {
+    Accept: 'application/json',
+  };
+
+  const token = getAuthToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const response = await fetch(`${API_BASE_URL}/insurance`, {
     method: 'POST',
     body: formData,
+    headers,
     credentials: 'include',
   });
 

@@ -25,6 +25,9 @@ export interface Clinician {
   videoUrl?: string;
   specialties: string[];
   status: ClinicianStatus;
+  acceptedInsurances?: string[];
+  acceptsSelfPay?: boolean;
+  offersSlidingScale?: boolean;
 }
 
 /**
@@ -93,6 +96,9 @@ export function mapApiClinician(
     videoUrl: apiClinician.video_url as string | undefined,
     specialties: (apiClinician.specialties as string[]) || [],
     status: apiClinician.status as ClinicianStatus,
+    acceptedInsurances: (apiClinician.accepted_insurances as string[]) || [],
+    acceptsSelfPay: apiClinician.accepts_self_pay as boolean | undefined,
+    offersSlidingScale: apiClinician.offers_sliding_scale as boolean | undefined,
   };
 }
 
