@@ -15,8 +15,6 @@ import { Button } from '@/components/ui/button';
 import { useOnboarding } from '@/stores/onboarding-store';
 import { ClinicianCard } from '@/components/onboarding/clinician-card';
 import type { Clinician } from '@/types/clinician';
-import { mapApiClinician } from '@/types/clinician';
-import { apiGet, type ApiResponse } from '@/lib/api/client';
 
 /**
  * Phase 3D: Clinician Matching page
@@ -24,7 +22,7 @@ import { apiGet, type ApiResponse } from '@/lib/api/client';
  */
 export default function Phase3MatchingPage() {
   const router = useRouter();
-  const { state, setPhase, completePhase, setClinicianId } = useOnboarding();
+  const { setPhase, completePhase, setClinicianId } = useOnboarding();
   const [clinician, setClinician] = useState<Clinician | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -61,7 +59,7 @@ export default function Phase3MatchingPage() {
           fullName: 'Sarah Johnson',
           displayName: 'Sarah Johnson, LCSW',
           credentials: 'LCSW',
-          bio: "I believe every young person deserves a safe space to explore their feelings and develop coping skills. With over 10 years of experience working with children and adolescents, I specialize in helping families navigate anxiety, depression, and life transitions.",
+          bio: 'I believe every young person deserves a safe space to explore their feelings and develop coping skills. With over 10 years of experience working with children and adolescents, I specialize in helping families navigate anxiety, depression, and life transitions.',
           photoUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400',
           specialties: ['anxiety', 'depression', 'adolescents', 'family_therapy'],
           status: 'active',
@@ -73,7 +71,7 @@ export default function Phase3MatchingPage() {
           fullName: 'Michael Chen',
           displayName: 'Michael Chen, PhD',
           credentials: 'PhD',
-          bio: "As a clinical psychologist, I'm passionate about helping teens and their families build resilience and find their strengths. I use evidence-based approaches including CBT and DBT to help young people manage difficult emotions.",
+          bio: 'As a clinical psychologist, I am passionate about helping teens and their families build resilience and find their strengths. I use evidence-based approaches including CBT and DBT to help young people manage difficult emotions.',
           photoUrl: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400',
           specialties: ['anxiety', 'depression', 'behavioral_issues', 'cbt'],
           status: 'active',
@@ -85,7 +83,7 @@ export default function Phase3MatchingPage() {
           fullName: 'Emily Rodriguez',
           displayName: 'Emily Rodriguez, LMFT',
           credentials: 'LMFT',
-          bio: "I'm dedicated to supporting families through challenging times with compassion and expertise. My background in family systems therapy helps me work with the whole family unit, not just the individual.",
+          bio: 'I am dedicated to supporting families through challenging times with compassion and expertise. My background in family systems therapy helps me work with the whole family unit, not just the individual.',
           photoUrl: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400',
           specialties: ['family_therapy', 'adolescents', 'mood_disorders'],
           status: 'active',
@@ -98,7 +96,7 @@ export default function Phase3MatchingPage() {
       
       setClinician(randomClinician);
       setClinicianId(randomClinician.id);
-    } catch (err) {
+    } catch {
       setError('Unable to find a clinician match. Please try again.');
     } finally {
       setIsLoading(false);
@@ -200,8 +198,8 @@ export default function Phase3MatchingPage() {
       {/* Info text */}
       <div className="mt-8 text-center max-w-md">
         <p className="text-xs text-muted-foreground">
-          You'll have the opportunity to connect with your clinician before
-          committing to ongoing care. If it's not the right fit, we'll help
+          You&apos;ll have the opportunity to connect with your clinician before
+          committing to ongoing care. If it&apos;s not the right fit, we&apos;ll help
           you find someone else.
         </p>
       </div>

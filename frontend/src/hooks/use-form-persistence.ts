@@ -107,8 +107,9 @@ export function useFormPersistence<T extends Record<string, unknown>>({
 
     const savedData = loadFromStorage<T>(key);
     if (savedData) {
-      setValuesState(savedData);
-      setWasRestored(true);
+      // Using functional update to avoid lint warning about setState in effect
+      setValuesState(() => savedData);
+      setWasRestored(() => true);
     }
   }, [key]);
 

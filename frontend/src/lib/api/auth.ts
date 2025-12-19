@@ -6,7 +6,7 @@
  * @see {@link _docs/tech-stack.md} for authentication requirements
  */
 
-import { apiPost, apiDelete, ApiResponse } from './client';
+import { apiDelete, ApiResponse } from './client';
 import type { User, LoginCredentials, RegisterData } from '@/types/user';
 
 /**

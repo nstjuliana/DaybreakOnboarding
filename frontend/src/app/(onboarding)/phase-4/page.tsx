@@ -10,7 +10,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckCircle2, Calendar, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useOnboarding } from '@/stores/onboarding-store';
 
@@ -20,7 +20,7 @@ import { useOnboarding } from '@/stores/onboarding-store';
  */
 export default function Phase4Page() {
   const router = useRouter();
-  const { state, setPhase, completePhase, clearProgress } = useOnboarding();
+  const { setPhase, completePhase, clearProgress } = useOnboarding();
 
   // Set current phase
   useEffect(() => {
@@ -50,10 +50,10 @@ export default function Phase4Page() {
       {/* Header */}
       <div className="mb-8 max-w-xl">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-          You're All Set!
+          You&apos;re All Set!
         </h1>
         <p className="text-lg text-muted-foreground">
-          Thank you for completing the onboarding process. We're excited to
+          Thank you for completing the onboarding process. We&apos;re excited to
           support you on your mental health journey.
         </p>
       </div>
@@ -69,7 +69,7 @@ export default function Phase4Page() {
             <div>
               <p className="font-medium text-foreground">Check Your Email</p>
               <p className="text-sm text-muted-foreground">
-                We've sent you a confirmation with next steps and login
+                We&apos;ve sent you a confirmation with next steps and login
                 details.
               </p>
             </div>

@@ -51,7 +51,7 @@ export function WelcomeMessage({ userType, className }: WelcomeMessageProps) {
       {/* Support text with softer styling */}
       <div className="bg-secondary/50 rounded-xl p-6 mt-8 animate-slide-up animation-delay-200">
         <p className="text-muted-foreground italic">
-          "{message.supportText}"
+          &ldquo;{message.supportText}&rdquo;
         </p>
       </div>
     </div>

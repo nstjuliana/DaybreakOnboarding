@@ -23,7 +23,7 @@ import { RegistrationForm } from '@/components/forms/registration-form';
 export default function Phase3AccountPage() {
   const router = useRouter();
   const { state, setPhase, completePhase } = useOnboarding();
-  const { register, error: authError, isLoading } = useAuth();
+  const { register, error: authError } = useAuth();
   const [error, setError] = useState<string | null>(null);
 
   // Set current phase and redirect if prerequisites not met
