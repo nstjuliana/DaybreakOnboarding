@@ -22,12 +22,14 @@ const nextConfig: NextConfig = {
   // Image optimization configuration
   images: {
     remotePatterns: [
-      // Add any external image domains here
-      // Example:
-      // {
-      //   protocol: 'https',
-      //   hostname: 'images.daybreakhealth.com',
-      // },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.daybreakhealth.com',
+      },
     ],
   },
 
