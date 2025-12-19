@@ -66,15 +66,8 @@ export function ChatContainer({
    * Auto-scroll to bottom when new messages arrive
    */
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, isTyping]);
-
-  /**
-   * Scrolls to the bottom of the message list
-   */
-  function scrollToBottom() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }
+  }, [messages, isTyping]);
 
   /**
    * Handles quick reply selection
@@ -120,11 +113,11 @@ export function ChatContainer({
           ))}
         </div>
 
-        {/* Typing indicator */}
-        {isTyping && <TypingIndicator />}
+        {/* Typing indicator - only show when typing AND no streaming message exists */}
+        {isTyping && !messages.some((m) => m.isStreaming) && <TypingIndicator />}
 
-        {/* Quick replies */}
-        {quickReplies && quickReplies.length > 0 && !isTyping && (
+        {/* Quick replies - only show when not typing AND no streaming message */}
+        {quickReplies && quickReplies.length > 0 && !isTyping && !messages.some((m) => m.isStreaming) && (
           <div className="flex justify-center pt-2">
             <QuickReplies
               options={quickReplies}

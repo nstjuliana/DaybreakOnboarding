@@ -7,6 +7,8 @@
  */
 
 import { PSC17_CONFIG, type ScreenerConfig } from '@/lib/constants/screeners/psc-17';
+import { PHQ9A_CONFIG } from '@/lib/constants/screeners/phq9a';
+import { SCARED_CONFIG } from '@/lib/constants/screeners/scared';
 
 /**
  * Responses map type
@@ -189,5 +191,77 @@ export function isScreenerComplete(
     (key) => responses[key] !== undefined && responses[key] !== null
   ).length;
   return answeredCount >= questionCount;
+}
+
+/**
+ * Calculates full scoring result for PHQ-9A (depression screener)
+ *
+ * @param responses - Map of question IDs to response values
+ * @returns Complete scoring result
+ */
+export function calculatePHQ9AScore(responses: Responses): ScoringResult {
+  const config = PHQ9A_CONFIG;
+  const totalScore = calculateTotalScore(responses);
+  
+  // PHQ-9A severity levels
+  let severity: SeverityLevel;
+  if (totalScore <= 4) {
+    severity = 'minimal';
+  } else if (totalScore <= 9) {
+    severity = 'mild';
+  } else if (totalScore <= 14) {
+    severity = 'moderate';
+  } else {
+    severity = 'severe';
+  }
+
+  const isElevated = totalScore >= config.scoring.totalCutoff;
+  const percentile = Math.round((totalScore / config.scoring.maxScore) * 100);
+
+  return {
+    totalScore,
+    maxScore: config.scoring.maxScore,
+    percentile,
+    severity,
+    isElevated,
+    subscales: [],
+    recommendation: generateRecommendation(severity, []),
+  };
+}
+
+/**
+ * Calculates full scoring result for SCARED (anxiety screener)
+ *
+ * @param responses - Map of question IDs to response values
+ * @returns Complete scoring result
+ */
+export function calculateSCAREDScore(responses: Responses): ScoringResult {
+  const config = SCARED_CONFIG;
+  const totalScore = calculateTotalScore(responses);
+  
+  // SCARED-5 severity levels (cutoff is 3)
+  let severity: SeverityLevel;
+  if (totalScore <= 1) {
+    severity = 'minimal';
+  } else if (totalScore <= 2) {
+    severity = 'mild';
+  } else if (totalScore <= 5) {
+    severity = 'moderate';
+  } else {
+    severity = 'severe';
+  }
+
+  const isElevated = totalScore >= config.scoring.totalCutoff;
+  const percentile = Math.round((totalScore / config.scoring.maxScore) * 100);
+
+  return {
+    totalScore,
+    maxScore: config.scoring.maxScore,
+    percentile,
+    severity,
+    isElevated,
+    subscales: [],
+    recommendation: generateRecommendation(severity, []),
+  };
 }
 

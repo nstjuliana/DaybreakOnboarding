@@ -1,14 +1,14 @@
 /**
  * @file ScreenerForm Component
  * @description Main screener form container that displays questions
- *              and manages form state for the PSC-17 assessment.
+ *              and manages form state for various screener types (PSC-17, PHQ-9A, SCARED).
  *
  * @see {@link _docs/user-flow.md} Phase 2: Holistic Intake
  */
 
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -18,10 +18,52 @@ import {
   PSC17_RESPONSE_OPTIONS,
 } from '@/lib/constants/screeners/psc-17';
 import {
+  PHQ9A_QUESTIONS,
+  PHQ9A_RESPONSE_OPTIONS,
+} from '@/lib/constants/screeners/phq9a';
+import {
+  SCARED_QUESTIONS,
+  SCARED_RESPONSE_OPTIONS,
+} from '@/lib/constants/screeners/scared';
+import {
   calculatePSC17Score,
+  calculatePHQ9AScore,
+  calculateSCAREDScore,
   isScreenerComplete,
   type Responses,
 } from '@/lib/utils/score-calculator';
+import { useOnboarding } from '@/stores/onboarding-store';
+import type { ScreenerType } from '@/stores/onboarding-store';
+
+/**
+ * Gets questions and options for a screener type
+ */
+function getScreenerConfig(screenerType: ScreenerType) {
+  switch (screenerType) {
+    case 'phq9a':
+      return {
+        questions: PHQ9A_QUESTIONS,
+        options: PHQ9A_RESPONSE_OPTIONS,
+        calculateScore: calculatePHQ9AScore,
+        instructions: 'Over the last 2 weeks, how often have you been bothered by any of the following problems?',
+      };
+    case 'scared':
+      return {
+        questions: SCARED_QUESTIONS,
+        options: SCARED_RESPONSE_OPTIONS,
+        calculateScore: calculateSCAREDScore,
+        instructions: 'Please indicate how often each statement describes you.',
+      };
+    case 'psc17':
+    default:
+      return {
+        questions: PSC17_QUESTIONS,
+        options: PSC17_RESPONSE_OPTIONS,
+        calculateScore: calculatePSC17Score,
+        instructions: 'Please indicate how often each statement applies to your child. Answer based on the past month.',
+      };
+  }
+}
 
 /**
  * ScreenerForm component props
@@ -39,7 +81,7 @@ interface ScreenerFormProps {
 
 /**
  * Main screener form component
- * Displays all PSC-17 questions with progress tracking
+ * Displays questions based on the selected screener type from onboarding state
  *
  * @param props - Component props
  */
@@ -49,18 +91,22 @@ export function ScreenerForm({
   onSaveProgress,
   className,
 }: ScreenerFormProps) {
+  const { state } = useOnboarding();
   const [responses, setResponses] = useState<Responses>(initialResponses);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isInitialMount = useRef(true);
   const onSaveProgressRef = useRef(onSaveProgress);
 
+  // Get config based on screener type from state
+  const config = useMemo(() => getScreenerConfig(state.screenerType), [state.screenerType]);
+
   // Keep ref updated with latest callback
   useEffect(() => {
     onSaveProgressRef.current = onSaveProgress;
   }, [onSaveProgress]);
 
-  const questions = PSC17_QUESTIONS;
+  const { questions, options, calculateScore, instructions } = config;
   const answeredCount = Object.keys(responses).length;
   const totalQuestions = questions.length;
   const isComplete = isScreenerComplete(responses, totalQuestions);
@@ -103,7 +149,7 @@ export function ScreenerForm({
     setError(null);
 
     try {
-      const result = calculatePSC17Score(responses);
+      const result = calculateScore(responses);
       await onSubmit(responses, result.totalScore, result.severity);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit assessment');
@@ -137,8 +183,7 @@ export function ScreenerForm({
       {/* Instructions */}
       <div className="mb-6 p-4 bg-secondary/50 rounded-lg">
         <p className="text-sm text-muted-foreground">
-          Please indicate how often each statement applies to your child.
-          Answer based on the <strong>past month</strong>.
+          {instructions}
         </p>
       </div>
 
@@ -149,7 +194,7 @@ export function ScreenerForm({
             key={question.id}
             question={question}
             questionNumber={index + 1}
-            options={PSC17_RESPONSE_OPTIONS}
+            options={options}
             value={responses[question.id]}
             onChange={(value) => handleResponseChange(question.id, value)}
           />
