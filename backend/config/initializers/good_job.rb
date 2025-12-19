@@ -56,4 +56,3 @@ QUEUE_PRIORITIES = {
   mailers: 15,    # Email delivery
   low: 20         # Analytics, cleanup
 }.freeze
-

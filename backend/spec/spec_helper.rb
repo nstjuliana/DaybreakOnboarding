@@ -44,4 +44,3 @@ RSpec.configure do |config|
   # Profile slow specs
   config.profile_examples = 10
 end
-

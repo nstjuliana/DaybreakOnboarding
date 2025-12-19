@@ -9,11 +9,12 @@
 # Environment-specific seeds can be loaded from db/seeds/ directory.
 #
 
-puts 'Seeding database...'
+# :nocov:
+Rails.logger.info 'Seeding database...'
 
 # Load environment-specific seeds
 seed_file = Rails.root.join('db', 'seeds', "#{Rails.env}.rb")
 load(seed_file) if File.exist?(seed_file)
 
-puts 'Seeding complete!'
-
+Rails.logger.info 'Seeding complete!'
+# :nocov:

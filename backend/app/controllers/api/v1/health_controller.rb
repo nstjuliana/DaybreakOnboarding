@@ -42,7 +42,7 @@ module Api
         }
 
         # Return 503 if any critical service is down
-        if health_status[:services].values.any? { |s| s == 'error' }
+        if health_status[:services].values.any?('error')
           render json: health_status, status: :service_unavailable
         else
           render json: health_status, status: :ok
@@ -100,4 +100,3 @@ module Api
     end
   end
 end
-

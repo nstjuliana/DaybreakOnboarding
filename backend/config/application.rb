@@ -30,7 +30,7 @@ module DaybreakOnboarding
     config.api_only = true
 
     # Autoload paths
-    config.autoload_lib(ignore: %w[assets tasks])
+    config.autoload_lib(ignore: ['assets', 'tasks'])
 
     # Time zone
     config.time_zone = 'Eastern Time (US & Canada)'
@@ -56,4 +56,3 @@ module DaybreakOnboarding
     config.middleware.use Rack::ContentType
   end
 end
-

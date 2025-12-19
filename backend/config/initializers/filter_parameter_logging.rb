@@ -86,4 +86,3 @@ Rails.application.config.filter_redirect += [
   :reset_password_token,
   :confirmation_token
 ]
-

@@ -90,4 +90,3 @@ class ApplicationController < ActionController::API
     render_error(message, status: :internal_server_error)
   end
 end
-

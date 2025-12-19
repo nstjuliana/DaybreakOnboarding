@@ -20,9 +20,9 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
 
     resource '*',
              headers: :any,
-             methods: %i[get post put patch delete options head],
+             methods: [:get, :post, :put, :patch, :delete, :options, :head],
              credentials: true,
-             expose: %w[Authorization X-Request-Id],
+             expose: ['Authorization', 'X-Request-Id'],
              max_age: 600
   end
 
@@ -33,11 +33,10 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
 
       resource '*',
                headers: :any,
-               methods: %i[get post put patch delete options head],
+               methods: [:get, :post, :put, :patch, :delete, :options, :head],
                credentials: true,
-               expose: %w[Authorization X-Request-Id],
+               expose: ['Authorization', 'X-Request-Id'],
                max_age: 3600
     end
   end
 end
-

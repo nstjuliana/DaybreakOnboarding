@@ -28,13 +28,8 @@ Rails.application.routes.draw do
   end
 
   # GoodJob dashboard (development/admin only)
-  if Rails.env.development?
-    mount GoodJob::Engine => '/good_job'
-  end
+  mount GoodJob::Engine => '/good_job' if Rails.env.development?
 
   # Letter Opener (development only)
-  if Rails.env.development?
-    mount LetterOpenerWeb::Engine, at: '/letter_opener'
-  end
+  mount LetterOpenerWeb::Engine, at: '/letter_opener' if Rails.env.development?
 end
-

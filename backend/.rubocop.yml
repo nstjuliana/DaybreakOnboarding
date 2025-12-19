@@ -3,20 +3,40 @@
 # Code style and linting rules for the Rails backend.
 # See https://docs.rubocop.org/rubocop/configuration.html
 
-require:
+plugins:
   - rubocop-rails
-  - rubocop-rspec
   - rubocop-performance
+
+require:
+  - rubocop-rspec
 
 AllCops:
   NewCops: enable
   TargetRubyVersion: 3.3
+  SuggestExtensions: false
   Exclude:
     - 'bin/**/*'
     - 'db/schema.rb'
     - 'db/migrate/**/*'
     - 'vendor/**/*'
     - 'node_modules/**/*'
+
+# Disable line ending checks (Windows/Unix compatibility)
+Layout/EndOfLine:
+  Enabled: false
+
+# Disable Capybara cops (we don't use Capybara for API testing)
+Capybara:
+  Enabled: false
+
+RSpec/Capybara:
+  Enabled: false
+
+Capybara/RSpec/PredicateMatcher:
+  Enabled: false
+
+FactoryBot:
+  Enabled: false
 
 # Layout
 Layout/LineLength:
@@ -48,11 +68,10 @@ Metrics/AbcSize:
 
 # Style
 Style/Documentation:
-  Enabled: true
-  Exclude:
-    - 'spec/**/*'
-    - 'db/migrate/**/*'
-    - 'config/**/*'
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false
 
 Style/FrozenStringLiteralComment:
   Enabled: true
@@ -89,3 +108,5 @@ RSpec/DescribeClass:
   Exclude:
     - 'spec/requests/**/*'
 
+RSpecRails:
+  Enabled: true

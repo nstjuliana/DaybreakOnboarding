@@ -22,7 +22,7 @@ Rails.application.configure do
   config.server_timing = true
 
   # Caching (toggle with rails dev:cache)
-  if Rails.root.join('tmp/caching-dev.txt').exist?
+  if Rails.root.join('tmp', 'caching-dev.txt').exist?
     config.action_controller.perform_caching = true
     config.action_controller.enable_fragment_cache_logging = true
     config.cache_store = :memory_store
@@ -77,4 +77,3 @@ Rails.application.configure do
   # Action Cable allowed origins
   config.action_cable.disable_request_forgery_protection = true
 end
-

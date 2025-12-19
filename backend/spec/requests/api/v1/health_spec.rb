@@ -80,4 +80,3 @@ RSpec.describe 'Api::V1::Health' do
     end
   end
 end
-

@@ -4,8 +4,8 @@
 # Requires CI checks to pass before deployment.
 #
 # Required Secrets:
-#   - APTIBLE_USERNAME: Aptible account username
-#   - APTIBLE_PASSWORD: Aptible account password or token
+#   - APTIBLE_USERNAME: Aptible account email
+#   - APTIBLE_PASSWORD: Aptible account password
 #
 # Aptible Apps:
 #   - daybreak-api-production (backend)
@@ -49,34 +49,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Aptible CLI
+      - name: Prepare backend for deploy
         run: |
-          curl -O https://omnibus-aptible-toolbelt.s3.amazonaws.com/aptible/omnibus-aptible-toolbelt/master/300/pkg/aptible-toolbelt_0.19.8%2B20240130183243~debian.9.13-1_amd64.deb
-          sudo dpkg -i aptible-toolbelt_*.deb
-
-      - name: Authenticate with Aptible
-        run: |
-          aptible login \
-            --email "${{ secrets.APTIBLE_USERNAME }}" \
-            --password "${{ secrets.APTIBLE_PASSWORD }}"
-
-      - name: Deploy backend to Aptible
-        run: |
-          cd backend
-          git init
+          git config user.email "deploy@github-actions"
+          git config user.name "GitHub Actions"
+          # Move backend to root, remove everything else
+          shopt -s dotglob
+          mv backend/* .
+          rm -rf backend frontend _docs scripts docker-compose.yml Makefile README.md || true
           git add -A
-          git commit -m "Deploy backend"
-          git remote add aptible git@beta.aptible.com:${{ env.APTIBLE_ENVIRONMENT }}/daybreak-api-production.git
-          git push aptible master --force
-        env:
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
+          git commit -m "Prepare backend for Aptible deploy" --allow-empty
 
-      - name: Run database migrations
-        run: |
-          aptible ssh \
-            --app daybreak-api-production \
-            --environment ${{ env.APTIBLE_ENVIRONMENT }} \
-            -- bundle exec rails db:migrate
+      - name: Deploy to Aptible
+        uses: aptible/aptible-deploy-action@v5
+        with:
+          type: git
+          app: daybreak-api-production
+          environment: ${{ env.APTIBLE_ENVIRONMENT }}
+          username: ${{ secrets.APTIBLE_USERNAME }}
+          password: ${{ secrets.APTIBLE_PASSWORD }}
 
       - name: Notify deployment success
         if: success()
@@ -97,27 +88,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Aptible CLI
+      - name: Prepare frontend for deploy
         run: |
-          curl -O https://omnibus-aptible-toolbelt.s3.amazonaws.com/aptible/omnibus-aptible-toolbelt/master/300/pkg/aptible-toolbelt_0.19.8%2B20240130183243~debian.9.13-1_amd64.deb
-          sudo dpkg -i aptible-toolbelt_*.deb
-
-      - name: Authenticate with Aptible
-        run: |
-          aptible login \
-            --email "${{ secrets.APTIBLE_USERNAME }}" \
-            --password "${{ secrets.APTIBLE_PASSWORD }}"
-
-      - name: Deploy frontend to Aptible
-        run: |
-          cd frontend
-          git init
+          git config user.email "deploy@github-actions"
+          git config user.name "GitHub Actions"
+          # Move frontend to root, remove everything else
+          shopt -s dotglob
+          mv frontend/* .
+          rm -rf backend frontend _docs scripts docker-compose.yml Makefile README.md || true
           git add -A
-          git commit -m "Deploy frontend"
-          git remote add aptible git@beta.aptible.com:${{ env.APTIBLE_ENVIRONMENT }}/daybreak-frontend-production.git
-          git push aptible master --force
-        env:
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
+          git commit -m "Prepare frontend for Aptible deploy" --allow-empty
+
+      - name: Deploy to Aptible
+        uses: aptible/aptible-deploy-action@v5
+        with:
+          type: git
+          app: daybreak-frontend-production
+          environment: ${{ env.APTIBLE_ENVIRONMENT }}
+          username: ${{ secrets.APTIBLE_USERNAME }}
+          password: ${{ secrets.APTIBLE_PASSWORD }}
 
       - name: Notify deployment success
         if: success()
@@ -142,4 +131,3 @@ jobs:
           echo "Verify endpoints in Aptible dashboard"
           echo "Backend app: daybreak-api-production"
           echo "Frontend app: daybreak-frontend-production"
-

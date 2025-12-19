@@ -17,7 +17,7 @@ abort('The Rails environment is running in production mode!') if Rails.env.produ
 require 'rspec/rails'
 
 # Load support files
-Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }
+Rails.root.glob('spec/support/**/*.rb').each { |f| require f }
 
 # Checks for pending migrations and applies them before tests are run
 begin
@@ -28,7 +28,7 @@ end
 
 RSpec.configure do |config|
   # Use Active Record fixtures
-  config.fixture_paths = [Rails.root.join('spec/fixtures')]
+  config.fixture_paths = [Rails.root.join('spec', 'fixtures')]
 
   # Use transactional fixtures
   config.use_transactional_fixtures = true
@@ -65,4 +65,3 @@ Shoulda::Matchers.configure do |config|
     with.library :rails
   end
 end
-

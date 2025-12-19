@@ -55,4 +55,3 @@ module RequestSpecHelper
     'test_token'
   end
 end
-

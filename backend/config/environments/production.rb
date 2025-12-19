@@ -35,7 +35,7 @@ Rails.application.configure do
   config.assume_ssl = true
   config.log_level = ENV.fetch('RAILS_LOG_LEVEL', 'info').to_sym
   config.log_tags = [:request_id]
-  config.log_formatter = ::Logger::Formatter.new
+  config.log_formatter = Logger::Formatter.new
 
   # Use default logging formatter with STDOUT for container logs
   if ENV['RAILS_LOG_TO_STDOUT'].present?
@@ -50,7 +50,7 @@ Rails.application.configure do
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
     user_name: 'apikey',
-    password: ENV['SENDGRID_API_KEY'],
+    password: ENV.fetch('SENDGRID_API_KEY', nil),
     domain: ENV.fetch('MAILER_DOMAIN', 'daybreakhealth.com'),
     address: 'smtp.sendgrid.net',
     port: 587,
@@ -73,4 +73,3 @@ Rails.application.configure do
     IPAddr.new('10.0.0.0/8')
   ].flatten
 end
-

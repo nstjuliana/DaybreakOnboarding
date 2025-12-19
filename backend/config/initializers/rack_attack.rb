@@ -23,9 +23,7 @@ class Rack::Attack
 
   # Login attempts: 5 per 20 seconds per IP
   throttle('logins/ip', limit: 5, period: 20.seconds) do |req|
-    if req.path == '/api/v1/auth/sign_in' && req.post?
-      req.ip
-    end
+    req.ip if req.path == '/api/v1/auth/sign_in' && req.post?
   end
 
   # Login attempts: 5 per 20 seconds per email
@@ -38,16 +36,12 @@ class Rack::Attack
 
   # AI chat endpoint: 30 requests per minute per user
   throttle('ai/chat', limit: 30, period: 1.minute) do |req|
-    if req.path.start_with?('/api/v1/chat') && req.post?
-      req.env['warden']&.user&.id || req.ip
-    end
+    req.env['warden']&.user&.id || req.ip if req.path.start_with?('/api/v1/chat') && req.post?
   end
 
   # Password reset: 5 per hour per email
   throttle('password_reset/email', limit: 5, period: 1.hour) do |req|
-    if req.path == '/api/v1/auth/password' && req.post?
-      req.params['email'].to_s.downcase.gsub(/\s+/, '')
-    end
+    req.params['email'].to_s.downcase.gsub(/\s+/, '') if req.path == '/api/v1/auth/password' && req.post?
   end
 
   ### Blocklists ###
@@ -64,12 +58,12 @@ class Rack::Attack
 
   # Allow health checks without throttling
   safelist('health checks') do |req|
-    req.path == '/api/v1/health' || req.path == '/up'
+    ['/api/v1/health', '/up'].include?(req.path)
   end
 
   # Allow localhost in development
   safelist('localhost') do |req|
-    Rails.env.development? && %w[127.0.0.1 ::1].include?(req.ip)
+    Rails.env.development? && ['127.0.0.1', '::1'].include?(req.ip)
   end
 
   ### Custom Responses ###
@@ -98,8 +92,6 @@ end
 
 # Log throttle events in production
 ActiveSupport::Notifications.subscribe('throttle.rack_attack') do |_name, _start, _finish, _request_id, payload|
-  Rails.logger.warn(
-    "[Rack::Attack] Throttled #{payload[:request].ip} - #{payload[:request].request_method} #{payload[:request].fullpath}"
-  )
+  req = payload[:request]
+  Rails.logger.warn("[Rack::Attack] Throttled #{req.ip} - #{req.request_method} #{req.fullpath}")
 end
-
