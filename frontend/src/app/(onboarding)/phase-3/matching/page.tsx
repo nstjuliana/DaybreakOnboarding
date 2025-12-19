@@ -1,20 +1,20 @@
 /**
  * @file Phase 3D Matching Page
  * @description Clinician matching page where users see their matched clinician.
- *              For MVP, displays a random clinician with option to re-match.
+ *              Uses weighted matching algorithm based on assessment results.
  *
  * @see {@link _docs/user-flow.md} Phase 3D: Clinician Matching
  */
 
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, RefreshCw, Loader2 } from 'lucide-react';
+import { ArrowRight, RefreshCw, Loader2, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useOnboarding } from '@/stores/onboarding-store';
 import { ClinicianCard } from '@/components/onboarding/clinician-card';
-import type { Clinician } from '@/types/clinician';
+import { useClinicianMatch } from '@/hooks/use-clinician-match';
 
 /**
  * Phase 3D: Clinician Matching page
@@ -23,91 +23,31 @@ import type { Clinician } from '@/types/clinician';
 export default function Phase3MatchingPage() {
   const router = useRouter();
   const { setPhase, completePhase, setClinicianId } = useOnboarding();
-  const [clinician, setClinician] = useState<Clinician | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    selectedMatch,
+    matches,
+    isLoading,
+    error,
+    fetchMatches,
+    requestDifferentMatch,
+  } = useClinicianMatch();
 
   // Set current phase
   useEffect(() => {
     setPhase('phase-3');
   }, [setPhase]);
 
-  /**
-   * Fetches a random clinician from the API
-   */
-  const fetchClinician = useCallback(async (showRefreshState = false) => {
-    if (showRefreshState) {
-      setIsRefreshing(true);
-    } else {
-      setIsLoading(true);
-    }
-    setError(null);
-
-    try {
-      // For MVP, we'll use mock data since backend might not be running
-      // In production, this would be: const result = await apiGet<Clinician>('/clinicians/random');
-      
-      // Simulate API call with mock data
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      const mockClinicians: Clinician[] = [
-        {
-          id: '1',
-          firstName: 'Sarah',
-          lastName: 'Johnson',
-          fullName: 'Sarah Johnson',
-          displayName: 'Sarah Johnson, LCSW',
-          credentials: 'LCSW',
-          bio: 'I believe every young person deserves a safe space to explore their feelings and develop coping skills. With over 10 years of experience working with children and adolescents, I specialize in helping families navigate anxiety, depression, and life transitions.',
-          photoUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400',
-          specialties: ['anxiety', 'depression', 'adolescents', 'family_therapy'],
-          status: 'active',
-        },
-        {
-          id: '2',
-          firstName: 'Michael',
-          lastName: 'Chen',
-          fullName: 'Michael Chen',
-          displayName: 'Michael Chen, PhD',
-          credentials: 'PhD',
-          bio: 'As a clinical psychologist, I am passionate about helping teens and their families build resilience and find their strengths. I use evidence-based approaches including CBT and DBT to help young people manage difficult emotions.',
-          photoUrl: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400',
-          specialties: ['anxiety', 'depression', 'behavioral_issues', 'cbt'],
-          status: 'active',
-        },
-        {
-          id: '3',
-          firstName: 'Emily',
-          lastName: 'Rodriguez',
-          fullName: 'Emily Rodriguez',
-          displayName: 'Emily Rodriguez, LMFT',
-          credentials: 'LMFT',
-          bio: 'I am dedicated to supporting families through challenging times with compassion and expertise. My background in family systems therapy helps me work with the whole family unit, not just the individual.',
-          photoUrl: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400',
-          specialties: ['family_therapy', 'adolescents', 'mood_disorders'],
-          status: 'active',
-        },
-      ];
-
-      // Pick a random clinician
-      const randomClinician =
-        mockClinicians[Math.floor(Math.random() * mockClinicians.length)];
-      
-      setClinician(randomClinician);
-      setClinicianId(randomClinician.id);
-    } catch {
-      setError('Unable to find a clinician match. Please try again.');
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  }, [setClinicianId]);
-
-  // Fetch clinician on mount
+  // Fetch matches on mount
   useEffect(() => {
-    fetchClinician();
-  }, [fetchClinician]);
+    fetchMatches();
+  }, [fetchMatches]);
+
+  // Update clinician ID when match changes
+  useEffect(() => {
+    if (selectedMatch) {
+      setClinicianId(selectedMatch.clinician.id);
+    }
+  }, [selectedMatch, setClinicianId]);
 
   /**
    * Handles continuing to scheduling
@@ -115,7 +55,6 @@ export default function Phase3MatchingPage() {
   function handleContinue() {
     completePhase('phase-3');
     setPhase('phase-4');
-    // For MVP, just show completion message since we don't have scheduling
     router.push('/phase-4');
   }
 
@@ -123,8 +62,10 @@ export default function Phase3MatchingPage() {
    * Handles requesting a different match
    */
   function handleRequestDifferent() {
-    fetchClinician(true);
+    requestDifferentMatch();
   }
+
+  const hasMultipleMatches = matches.length > 1;
 
   return (
     <div className="flex flex-col items-center animate-fade-in">
@@ -157,7 +98,7 @@ export default function Phase3MatchingPage() {
         <div className="w-full max-w-md">
           <div className="rounded-xl border border-destructive/50 bg-destructive/10 p-6 text-center">
             <p className="text-destructive mb-4">{error}</p>
-            <Button onClick={() => fetchClinician()} variant="outline">
+            <Button onClick={() => fetchMatches()} variant="outline">
               Try Again
             </Button>
           </div>
@@ -165,27 +106,45 @@ export default function Phase3MatchingPage() {
       )}
 
       {/* Clinician card */}
-      {clinician && !isLoading && (
+      {selectedMatch && !isLoading && (
         <>
           <div className="w-full max-w-md">
-            <ClinicianCard clinician={clinician} isSelected />
+            <ClinicianCard clinician={selectedMatch.clinician} isSelected />
+
+            {/* Match reasons */}
+            {selectedMatch.reasons.length > 0 && (
+              <div className="mt-4 p-4 bg-primary-50 rounded-lg">
+                <h3 className="text-sm font-medium text-primary-700 mb-2 flex items-center gap-2">
+                  <Star className="h-4 w-4" />
+                  Why we matched you
+                </h3>
+                <ul className="space-y-1">
+                  {selectedMatch.reasons.map((reason, index) => (
+                    <li
+                      key={index}
+                      className="text-sm text-primary-600 flex items-center gap-2"
+                    >
+                      <span className="w-1 h-1 rounded-full bg-primary-400" />
+                      {reason}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           {/* Action buttons */}
           <div className="mt-8 flex flex-col sm:flex-row items-center gap-4">
-            <Button
-              variant="outline"
-              onClick={handleRequestDifferent}
-              disabled={isRefreshing}
-              className="gap-2"
-            >
-              {isRefreshing ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
+            {hasMultipleMatches && (
+              <Button
+                variant="outline"
+                onClick={handleRequestDifferent}
+                className="gap-2"
+              >
                 <RefreshCw className="h-4 w-4" />
-              )}
-              Request Different Match
-            </Button>
+                View Other Matches ({matches.length - 1} more)
+              </Button>
+            )}
 
             <Button size="lg" onClick={handleContinue} className="gap-2">
               Continue to Scheduling
