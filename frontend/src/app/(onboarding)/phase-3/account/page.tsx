@@ -22,7 +22,7 @@ import { RegistrationForm } from '@/components/forms/registration-form';
  */
 export default function Phase3AccountPage() {
   const router = useRouter();
-  const { state, setPhase, completePhase } = useOnboarding();
+  const { state, setPhase } = useOnboarding();
   const { register, error: authError } = useAuth();
   const [error, setError] = useState<string | null>(null);
 
@@ -65,9 +65,8 @@ export default function Phase3AccountPage() {
         phone: data.phone,
       });
 
-      // Mark phase complete and navigate to matching
-      completePhase('phase-3');
-      router.push('/phase-3/matching');
+      // Navigate to coverage selection page
+      router.push('/phase-3/coverage');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     }

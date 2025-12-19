@@ -13,16 +13,16 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useOnboarding } from '@/stores/onboarding-store';
-import { InsuranceSelector } from '@/components/forms/insurance-selector';
 import { InsuranceUpload } from '@/components/forms/insurance-upload';
 import { InsuranceForm } from '@/components/forms/insurance-form';
 import { InsuranceVerification } from '@/components/forms/insurance-verification';
 import { useInsuranceUpload } from '@/hooks/use-insurance-upload';
-import type { PaymentMethod } from '@/types/insurance';
+import type { InsuranceFormData } from '@/types/insurance';
 
 /**
- * Phase 3B: Insurance Selection Page
- * Handles payment method selection and insurance capture
+ * Phase 3B: Insurance Upload Page
+ * Handles insurance card upload and OCR extraction.
+ * Payment method selection is handled in /phase-3/coverage.
  */
 export default function Phase3InsurancePage() {
   const router = useRouter();
@@ -32,13 +32,12 @@ export default function Phase3InsurancePage() {
     insuranceCard,
     isLoading,
     error,
-    selectPaymentMethod,
     uploadImages,
     switchToManual,
     submitManualEntry,
     confirmVerification,
     updateData,
-  } = useInsuranceUpload();
+  } = useInsuranceUpload({ initialStep: 'upload' });
 
   // Set current phase
   useEffect(() => {
@@ -55,18 +54,14 @@ export default function Phase3InsurancePage() {
   // Navigate to next step when complete
   useEffect(() => {
     if (step === 'complete') {
-      router.push('/phase-3/demographics');
+      router.push('/phase-3/matching');
     }
   }, [step, router]);
 
   // Handle back navigation
   function handleBack() {
-    if (step === 'upload' || step === 'manual') {
-      // Go back to selection
-      window.location.reload();
-    } else {
-      router.push('/phase-3/account');
-    }
+    // Go back to coverage selection
+    router.push('/phase-3/coverage');
   }
 
   // Don't render until we have user type
@@ -99,13 +94,6 @@ export default function Phase3InsurancePage() {
 
       {/* Content based on step */}
       <div className="w-full max-w-xl">
-        {step === 'select' && (
-          <InsuranceSelectionStep
-            onSelect={selectPaymentMethod}
-            isLoading={isLoading}
-          />
-        )}
-
         {step === 'upload' && (
           <InsuranceUploadStep
             onUpload={uploadImages}
@@ -148,8 +136,6 @@ export default function Phase3InsurancePage() {
  */
 function getHeaderTitle(step: string): string {
   switch (step) {
-    case 'select':
-      return 'How will you pay for services?';
     case 'upload':
       return 'Upload Your Insurance Card';
     case 'manual':
@@ -166,8 +152,6 @@ function getHeaderTitle(step: string): string {
  */
 function getHeaderSubtitle(step: string): string {
   switch (step) {
-    case 'select':
-      return 'Select the option that best describes your situation.';
     case 'upload':
       return "Take a photo of your card and we'll extract the information automatically.";
     case 'manual':
@@ -177,41 +161,6 @@ function getHeaderSubtitle(step: string): string {
     default:
       return '';
   }
-}
-
-/**
- * Payment method selection step
- */
-interface InsuranceSelectionStepProps {
-  onSelect: (method: PaymentMethod) => void;
-  isLoading: boolean;
-}
-
-function InsuranceSelectionStep({
-  onSelect,
-  isLoading,
-}: InsuranceSelectionStepProps) {
-  return (
-    <div className="space-y-6">
-      <InsuranceSelector
-        value={null}
-        onChange={onSelect}
-        disabled={isLoading}
-      />
-
-      {/* Self-pay info */}
-      <div className="p-4 bg-neutral-50 rounded-lg">
-        <h3 className="font-medium text-foreground mb-2">
-          About Self-Pay Options
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          If you don&apos;t have insurance or prefer to pay out-of-pocket, we offer
-          competitive rates and can discuss payment plans. Financial assistance
-          may be available.
-        </p>
-      </div>
-    </div>
-  );
 }
 
 /**
@@ -248,7 +197,7 @@ function InsuranceUploadStep({
  * Manual insurance entry step
  */
 interface InsuranceManualStepProps {
-  onSubmit: (data: Parameters<typeof submitManualEntry>[0]) => void;
+  onSubmit: (data: InsuranceFormData) => void;
   isLoading: boolean;
 }
 
@@ -259,8 +208,5 @@ function InsuranceManualStep({ onSubmit, isLoading }: InsuranceManualStepProps) 
     </div>
   );
 }
-
-// Type helper for the submitManualEntry function
-type submitManualEntry = ReturnType<typeof useInsuranceUpload>['submitManualEntry'];
 
 

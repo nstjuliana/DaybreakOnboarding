@@ -71,9 +71,21 @@ interface UseInsuranceUploadReturn extends InsuranceUploadState {
  * } = useInsuranceUpload();
  * ```
  */
-export function useInsuranceUpload(): UseInsuranceUploadReturn {
+/**
+ * Props for useInsuranceUpload hook
+ */
+interface UseInsuranceUploadOptions {
+  /** Initial step to start from (default: 'select') */
+  initialStep?: InsuranceUploadState['step'];
+}
+
+export function useInsuranceUpload(
+  options: UseInsuranceUploadOptions = {}
+): UseInsuranceUploadReturn {
+  const { initialStep = 'select' } = options;
+  
   const [state, setState] = useState<InsuranceUploadState>({
-    step: 'select',
+    step: initialStep,
     insuranceCard: null,
     isLoading: false,
     error: null,
