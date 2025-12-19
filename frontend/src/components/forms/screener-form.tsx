@@ -69,13 +69,18 @@ export function ScreenerForm({
   /**
    * Auto-save responses when they change (after initial mount)
    * Uses ref to avoid dependency on callback identity
+   * Deferred via setTimeout to run after React's commit phase
    */
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
-    onSaveProgressRef.current?.(responses);
+    // Defer to macrotask queue to avoid updating parent during React's commit
+    const timeoutId = setTimeout(() => {
+      onSaveProgressRef.current?.(responses);
+    }, 0);
+    return () => clearTimeout(timeoutId);
   }, [responses]);
 
   /**
@@ -219,13 +224,18 @@ export function ScreenerFormPaginated({
   /**
    * Auto-save responses when they change (after initial mount)
    * Uses ref to avoid dependency on callback identity
+   * Deferred via setTimeout to run after React's commit phase
    */
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
-    onSaveProgressRef.current?.(responses);
+    // Defer to macrotask queue to avoid updating parent during React's commit
+    const timeoutId = setTimeout(() => {
+      onSaveProgressRef.current?.(responses);
+    }, 0);
+    return () => clearTimeout(timeoutId);
   }, [responses]);
 
   function handleResponseChange(value: number) {
