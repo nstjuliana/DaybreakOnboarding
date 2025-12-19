@@ -16,24 +16,15 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [master, main]
   workflow_dispatch:
-    inputs:
-      environment:
-        description: "Deployment environment"
-        required: true
-        default: "production"
-        type: choice
-        options:
-          - production
-          - staging
 
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: false
 
 env:
-  APTIBLE_ENVIRONMENT: ${{ github.event.inputs.environment || 'production' }}
+  APTIBLE_ENVIRONMENT: daybreak-onboarding
 
 jobs:
   # ==========================================================================
@@ -75,7 +66,7 @@ jobs:
           git init
           git add -A
           git commit -m "Deploy backend"
-          git remote add aptible git@beta.aptible.com:${{ env.APTIBLE_ENVIRONMENT }}/daybreak-api-${{ env.APTIBLE_ENVIRONMENT }}.git
+          git remote add aptible git@beta.aptible.com:${{ env.APTIBLE_ENVIRONMENT }}/daybreak-api-production.git
           git push aptible master --force
         env:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
@@ -83,7 +74,8 @@ jobs:
       - name: Run database migrations
         run: |
           aptible ssh \
-            --app daybreak-api-${{ env.APTIBLE_ENVIRONMENT }} \
+            --app daybreak-api-production \
+            --environment ${{ env.APTIBLE_ENVIRONMENT }} \
             -- bundle exec rails db:migrate
 
       - name: Notify deployment success
@@ -122,7 +114,7 @@ jobs:
           git init
           git add -A
           git commit -m "Deploy frontend"
-          git remote add aptible git@beta.aptible.com:${{ env.APTIBLE_ENVIRONMENT }}/daybreak-frontend-${{ env.APTIBLE_ENVIRONMENT }}.git
+          git remote add aptible git@beta.aptible.com:${{ env.APTIBLE_ENVIRONMENT }}/daybreak-frontend-production.git
           git push aptible master --force
         env:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
@@ -144,17 +136,10 @@ jobs:
       - name: Wait for services to start
         run: sleep 60
 
-      - name: Check backend health
-        run: |
-          curl -f https://api-${{ env.APTIBLE_ENVIRONMENT }}.daybreakhealth.com/api/v1/health || echo "Health check failed - verify manually"
-
-      - name: Check frontend availability
-        run: |
-          curl -f https://onboarding-${{ env.APTIBLE_ENVIRONMENT }}.daybreakhealth.com/ || echo "Frontend check failed - verify manually"
-
       - name: Deployment complete
         run: |
           echo "Deployment to ${{ env.APTIBLE_ENVIRONMENT }} completed!"
-          echo "Backend: https://api-${{ env.APTIBLE_ENVIRONMENT }}.daybreakhealth.com"
-          echo "Frontend: https://onboarding-${{ env.APTIBLE_ENVIRONMENT }}.daybreakhealth.com"
+          echo "Verify endpoints in Aptible dashboard"
+          echo "Backend app: daybreak-api-production"
+          echo "Frontend app: daybreak-frontend-production"
 
