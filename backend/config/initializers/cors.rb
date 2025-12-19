@@ -32,11 +32,11 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
   if Rails.env.production?
     # Parse FRONTEND_URL which may contain multiple comma-separated origins
     frontend_urls = ENV.fetch('FRONTEND_URL', 'https://onboarding.daybreakhealth.com')
-                       .split(',')
-                       .map(&:strip)
+      .split(',')
+      .map(&:strip)
 
     # Also allow Aptible default endpoints
-    aptible_pattern = /\Ahttps?:\/\/app-\d+\.on-aptible\.com\z/
+    aptible_pattern = %r{\Ahttps?://app-\d+\.on-aptible\.com\z}
 
     allow do
       origins(*frontend_urls, aptible_pattern)
