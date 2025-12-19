@@ -10,10 +10,11 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useOnboarding } from '@/stores/onboarding-store';
 import { useAvailability, type TimeSlot } from '@/hooks/use-availability';
+import { isAuthenticated } from '@/lib/api/auth';
 import { CalendarView } from '@/components/scheduling/calendar-view';
 import { TimeSlotPicker } from '@/components/scheduling/time-slot-picker';
 import { AppointmentSummary } from '@/components/scheduling/appointment-summary';
@@ -43,8 +44,15 @@ export default function Phase4Page() {
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [bookedAppointment, setBookedAppointment] = useState<Record<string, unknown> | null>(null);
 
+  // Check if user is authenticated
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(true);
+  
+  useEffect(() => {
+    setIsUserAuthenticated(isAuthenticated());
+  }, []);
+
   // Availability hook
-  const { fetchAvailability, getAvailableDates, getSlotsForDate, isLoading: isLoadingAvailability } =
+  const { fetchAvailability, getAvailableDates, getSlotsForDate } =
     useAvailability();
 
   // Set current phase
@@ -231,6 +239,26 @@ export default function Phase4Page() {
         </p>
       </div>
 
+      {/* Auth warning */}
+      {!isUserAuthenticated && (
+        <div className="w-full max-w-3xl mb-6 p-4 bg-warning-50 border border-warning-500/20 rounded-lg flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-warning-500 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-medium text-warning-600">Account required to book</p>
+            <p className="text-sm text-warning-500 mt-1">
+              Please{' '}
+              <button
+                onClick={() => router.push('/phase-3/account')}
+                className="underline hover:no-underline font-medium"
+              >
+                create an account
+              </button>
+              {' '}to confirm your appointment.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Error display */}
       {bookingError && (
         <div className="w-full max-w-3xl mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
@@ -286,7 +314,7 @@ export default function Phase4Page() {
                 size="lg"
                 className="w-full"
                 onClick={handleBook}
-                disabled={isBooking || !selectedSlot}
+                disabled={isBooking || !selectedSlot || !isUserAuthenticated}
               >
                 {isBooking ? (
                   <>

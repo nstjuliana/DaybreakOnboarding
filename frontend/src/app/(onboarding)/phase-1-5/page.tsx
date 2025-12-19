@@ -31,6 +31,7 @@ export default function Phase15Page() {
     setPhase,
     completePhase,
     setConcernAreas,
+    setScreenerType,
   } = useOnboarding();
 
   const [selectedScreener, setSelectedScreener] = useState<ScreenerConfig | null>(null);
@@ -71,6 +72,8 @@ export default function Phase15Page() {
     setConcernAreas(concerns);
     const screener = getPrimaryScreener(concerns);
     setSelectedScreener(screener);
+    // Set the screener type in the onboarding store
+    setScreenerType(screener.type as 'psc17' | 'phq9a' | 'scared');
     setShowConfirmation(true);
   }
 
@@ -107,7 +110,7 @@ export default function Phase15Page() {
             Your Personalized Assessment
           </h1>
           <p className="text-muted-foreground">
-            Based on your concerns, we've selected the best assessment for you.
+            Based on your concerns, we&apos;ve selected the best assessment for you.
           </p>
         </div>
 
@@ -213,7 +216,7 @@ export default function Phase15Page() {
       {selectedScreener && (
         <div className="mt-6 text-center">
           <p className="text-sm text-neutral-500">
-            Based on your selection, we'll use the{' '}
+            Based on your selection, we&apos;ll use the{' '}
             <span className="font-medium text-primary-600">
               {selectedScreener.shortName}
             </span>{' '}

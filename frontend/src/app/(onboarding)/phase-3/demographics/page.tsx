@@ -95,7 +95,6 @@ export default function Phase3DemographicsPage() {
 
   // Determine the subject based on user type
   const isParent = state.userType === 'parent';
-  const isMinor = state.userType === 'minor';
   const isFriend = state.userType === 'friend';
 
   // Friend flow has different handling
@@ -176,4 +175,5 @@ export default function Phase3DemographicsPage() {
     </div>
   );
 }
+
 

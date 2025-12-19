@@ -1,124 +1,163 @@
 /**
  * @file Home Page
- * @description Landing page for the Parent Onboarding AI application.
- *              Displays welcome message and backend health status.
+ * @description Entry point for the Parent Onboarding AI application.
+ *              Displays the Phase 0 Identification Lobby (user type selection).
  *
- * @see {@link _docs/user-flow.md} for user journey specification
+ * @see {@link _docs/user-flow.md} Phase 0: Identification Lobby
  */
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { HealthStatusDisplay } from "@/components/health-status";
+'use client';
+
+import { useEffect } from 'react';
+import { UserTypeSelector } from '@/components/onboarding/user-type-selector';
+import { OnboardingProvider, useOnboarding } from '@/stores/onboarding-store';
+import { ResumePrompt } from '@/components/onboarding/resume-prompt';
+import { OnboardingHeader } from '@/components/onboarding/onboarding-header';
+
+/**
+ * Phase 0 content component
+ * Renders the identification lobby within the onboarding context
+ */
+function Phase0Content() {
+  const { state, setPhase } = useOnboarding();
+
+  // Set current phase on mount
+  useEffect(() => {
+    setPhase('phase-0');
+  }, [setPhase]);
+
+  return (
+    <div className="flex flex-col items-center animate-fade-in">
+      {/* Resume prompt if there's saved progress */}
+      {state.hasSavedProgress && state.currentPhase !== 'phase-0' && (
+        <ResumePrompt />
+      )}
+
+      {/* Hero section */}
+      <div className="text-center mb-10 max-w-xl">
+        <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          Who is looking for help today?
+        </h1>
+        <p className="text-lg text-muted-foreground">
+          Let us know so we can guide you to the right resources.
+        </p>
+      </div>
+
+      {/* User type selection */}
+      <UserTypeSelector />
+
+      {/* Trust indicators */}
+      <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2">
+          <ShieldIcon className="h-4 w-4" />
+          <span>HIPAA Compliant</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <LockIcon className="h-4 w-4" />
+          <span>Secure & Private</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <ClockIcon className="h-4 w-4" />
+          <span>~15 minutes</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /**
  * Home page component
- * Entry point for the Parent Onboarding AI application
+ * Entry point displaying the Phase 0 Identification Lobby
  */
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[var(--daybreak-primary-50)] via-background to-[var(--daybreak-accent-50)] opacity-50" />
+    <OnboardingProvider>
+      <div className="min-h-screen bg-background">
+        {/* Header with progress indicator */}
+        <OnboardingHeader />
 
-        <div className="relative container-content py-16 md:py-24">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
-            {/* Logo/Brand */}
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
-              <svg
-                className="w-8 h-8 text-primary"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
+        {/* Main content area */}
+        <div className="container-content py-8 md:py-12">
+          <Phase0Content />
+        </div>
+
+        {/* Footer with support info */}
+        <footer className="border-t border-border py-6">
+          <div className="container-content text-center text-sm text-muted-foreground">
+            <p>
+              Need help?{' '}
+              <a
+                href="mailto:support@daybreakhealth.com"
+                className="text-primary hover:underline"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
-                />
-              </svg>
-            </div>
-
-            {/* Heading */}
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight text-balance">
-              Parent Onboarding AI
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
-              Connecting families with compassionate mental health care for
-              children and adolescents.
+                Contact support
+              </a>
             </p>
-
-            {/* Daybreak branding */}
-            <p className="text-sm text-muted-foreground">
-              Powered by{" "}
-              <span className="font-semibold text-primary">Daybreak Health</span>
+            <p className="mt-2">
+              Your information is secure and protected under HIPAA.
             </p>
           </div>
-        </div>
+        </footer>
       </div>
+    </OnboardingProvider>
+  );
+}
 
-      {/* Status Section */}
-      <div className="container-content py-12">
-        <div className="max-w-2xl mx-auto space-y-8">
-          {/* Welcome Card */}
-          <Card className="border-0 shadow-md">
-            <CardHeader>
-              <CardTitle className="text-xl">Welcome to Phase 0</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-muted-foreground">
-                This is the foundation phase of the Parent Onboarding AI
-                project. The application infrastructure is now set up with:
-              </p>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                <li>Rails 8 API backend with PostgreSQL</li>
-                <li>Next.js 14 frontend with Tailwind CSS</li>
-                <li>Docker containerization for development</li>
-                <li>HIPAA-compliant configuration</li>
-              </ul>
-            </CardContent>
-          </Card>
+/**
+ * Simple shield icon for trust indicators
+ */
+function ShieldIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  );
+}
 
-          {/* Health Status Card */}
-          <Card className="border-0 shadow-md">
-            <CardHeader>
-              <CardTitle className="text-xl">System Status</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <HealthStatusDisplay />
-            </CardContent>
-          </Card>
+/**
+ * Simple lock icon for trust indicators
+ */
+function LockIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  );
+}
 
-          {/* Next Steps Card */}
-          <Card className="border-0 shadow-md bg-[var(--daybreak-primary-50)]">
-            <CardHeader>
-              <CardTitle className="text-xl text-primary">Next Steps</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-muted-foreground">
-                Phase 1 will implement the core onboarding flow:
-              </p>
-              <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
-                <li>User identification (Parent/Minor/Friend)</li>
-                <li>Account creation with Devise authentication</li>
-                <li>Phase 0 - Identification Lobby UI</li>
-                <li>Phase 1 - Regulate and Relate screens</li>
-              </ol>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="border-t border-border py-8 mt-12">
-        <div className="container-content text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Daybreak Health. All rights reserved.</p>
-          <p className="mt-2">HIPAA Compliant &bull; Secure &bull; Confidential</p>
-        </div>
-      </footer>
-    </div>
+/**
+ * Simple clock icon for trust indicators
+ */
+function ClockIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
   );
 }

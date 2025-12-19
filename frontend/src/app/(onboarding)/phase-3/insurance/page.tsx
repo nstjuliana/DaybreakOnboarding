@@ -10,7 +10,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Shield } from 'lucide-react';
+import { ArrowLeft, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useOnboarding } from '@/stores/onboarding-store';
 import { InsuranceSelector } from '@/components/forms/insurance-selector';
@@ -262,4 +262,5 @@ function InsuranceManualStep({ onSubmit, isLoading }: InsuranceManualStepProps) 
 
 // Type helper for the submitManualEntry function
 type submitManualEntry = ReturnType<typeof useInsuranceUpload>['submitManualEntry'];
+
 

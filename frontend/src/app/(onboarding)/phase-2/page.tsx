@@ -12,7 +12,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, MessageCircle, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useOnboarding } from '@/stores/onboarding-store';
+import { useOnboarding, type ScreenerType } from '@/stores/onboarding-store';
 import { ScreenerForm } from '@/components/forms/screener-form';
 import { ChatContainer } from '@/components/chat/chat-container';
 import { SafetyPivot } from '@/components/onboarding/safety-pivot';
@@ -20,6 +20,24 @@ import { useChat } from '@/hooks/use-chat';
 import type { Responses } from '@/lib/utils/score-calculator';
 import type { QuickReplyOption } from '@/components/chat/quick-replies';
 import { cn } from '@/lib/utils';
+import { PSC17_RESPONSE_OPTIONS } from '@/lib/constants/screeners/psc-17';
+import { SCARED_RESPONSE_OPTIONS } from '@/lib/constants/screeners/scared';
+import { PHQ9A_RESPONSE_OPTIONS } from '@/lib/constants/screeners/phq9a';
+
+/**
+ * Gets response options for a screener type
+ */
+function getResponseOptionsForScreener(screenerType: ScreenerType) {
+  switch (screenerType) {
+    case 'phq9a':
+      return PHQ9A_RESPONSE_OPTIONS;
+    case 'scared':
+      return SCARED_RESPONSE_OPTIONS;
+    case 'psc17':
+    default:
+      return PSC17_RESPONSE_OPTIONS;
+  }
+}
 
 /**
  * Assessment mode options
@@ -45,24 +63,34 @@ export default function Phase2Page() {
     state.preferChatMode ? 'chat' : 'form'
   );
   const [showSafetyPivot, setShowSafetyPivot] = useState(false);
-  const [riskLevel, setRiskLevel] = useState<'high' | 'critical'>('high');
+  const [riskLevel] = useState<'high' | 'critical'>('high');
   const greetingInitializedRef = useRef(false);
 
-  // Chat hook for AI mode
+  // Chat hook for AI mode - uses same screener type as form
   const {
     messages,
     isTyping,
     isSending,
     quickReplies,
+    currentQuestionIndex,
+    totalQuestions,
+    isScreenerComplete,
+    screenerResponses,
     sendMessage,
     sendQuickReply,
     addMessage,
     setQuickReplies,
   } = useChat({
     conversationId: state.conversationId || undefined,
-    onAIResponse: (message) => {
+    screenerType: state.screenerType, // Use the same screener type as the standard form
+    onAIResponse: () => {
       // Check for crisis in AI response metadata
       // This would be passed from backend
+    },
+    onScreenerComplete: (responses) => {
+      // Convert screener responses to assessment format and save
+      setAssessmentResponses(responses);
+      console.log('Screener completed:', responses);
     },
   });
 
@@ -96,14 +124,39 @@ export default function Phase2Page() {
   }, [state.userType]);
 
   /**
-   * Gets initial quick replies
+   * Gets initial quick replies based on screener type
    */
   const getInitialQuickReplies = useCallback((): QuickReplyOption[] => {
     return [
-      { value: 1, label: "Yes, I'm ready" },
-      { value: 0, label: 'Tell me more first' },
+      { value: 1, label: "Yes, I'm ready to start" },
+      { value: 0, label: 'Tell me more about this first' },
     ];
   }, []);
+
+  /**
+   * Gets context-aware quick replies based on the current question state and screener type
+   */
+  const getContextQuickReplies = useCallback((): QuickReplyOption[] => {
+    // If screener is complete, no quick replies
+    if (isScreenerComplete) {
+      return [];
+    }
+    
+    // If in intro state (not started), show start options
+    if (currentQuestionIndex < 0) {
+      return [
+        { value: 1, label: "Yes, I'm ready to start" },
+        { value: 0, label: 'Tell me more about this first' },
+      ];
+    }
+    
+    // During questions, show dynamic answer options based on screener type
+    const options = getResponseOptionsForScreener(state.screenerType);
+    return options.map(opt => ({
+      value: opt.value,
+      label: opt.label.split(' ')[0], // Use first word for cleaner buttons (e.g., "Never" instead of "Never - Not true")
+    }));
+  }, [currentQuestionIndex, isScreenerComplete, state.screenerType]);
 
   // Initialize chat with greeting (only once)
   useEffect(() => {
@@ -122,6 +175,13 @@ export default function Phase2Page() {
       setQuickReplies(getInitialQuickReplies());
     }
   }, [mode, messages.length, addMessage, setQuickReplies, getGreetingMessage, getInitialQuickReplies]);
+  
+  // Update quick replies when question index changes
+  useEffect(() => {
+    if (mode === 'chat' && !isTyping && !isSending) {
+      setQuickReplies(getContextQuickReplies());
+    }
+  }, [mode, currentQuestionIndex, isScreenerComplete, isTyping, isSending, setQuickReplies, getContextQuickReplies]);
 
   // Don't render until we have user type
   if (!state.userType) {
@@ -141,7 +201,6 @@ export default function Phase2Page() {
    */
   async function handleSendMessage(content: string) {
     await sendMessage(content);
-    // Quick replies would be updated by the AI response handler
   }
 
   /**
@@ -149,6 +208,15 @@ export default function Phase2Page() {
    */
   async function handleQuickReply(option: QuickReplyOption) {
     await sendQuickReply(option);
+  }
+  
+  /**
+   * Handles continuing after chat assessment completes
+   */
+  function handleChatComplete() {
+    completePhase('phase-2');
+    setPhase('phase-3');
+    router.push('/phase-3/account');
   }
 
   /**
@@ -212,16 +280,42 @@ export default function Phase2Page() {
       {/* Assessment content */}
       <div className="w-full max-w-2xl mt-6">
         {mode === 'chat' ? (
-          <ChatContainer
-            messages={messages}
-            isTyping={isTyping}
-            isSending={isSending}
-            onSendMessage={handleSendMessage}
-            quickReplies={quickReplies}
-            onQuickReply={handleQuickReply}
-            inputPlaceholder="Type your response..."
-            className="h-[500px]"
-          />
+          <>
+            {/* Progress indicator for chat mode */}
+            {currentQuestionIndex >= 0 && !isScreenerComplete && (
+              <div className="mb-4">
+                <div className="h-1 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary transition-all duration-300"
+                    style={{ width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%` }}
+                  />
+                </div>
+                <p className="text-sm text-muted-foreground text-center mt-2">
+                  Question {currentQuestionIndex + 1} of {totalQuestions}
+                </p>
+              </div>
+            )}
+            
+            <ChatContainer
+              messages={messages}
+              isTyping={isTyping}
+              isSending={isSending}
+              onSendMessage={handleSendMessage}
+              quickReplies={quickReplies}
+              onQuickReply={handleQuickReply}
+              inputPlaceholder="Type your response..."
+              className="h-[500px]"
+            />
+            
+            {/* Continue button when complete */}
+            {isScreenerComplete && (
+              <div className="mt-4 flex justify-center">
+                <Button onClick={handleChatComplete} size="lg">
+                  Continue to Next Step
+                </Button>
+              </div>
+            )}
+          </>
         ) : (
           <ScreenerForm
             initialResponses={state.assessmentResponses}

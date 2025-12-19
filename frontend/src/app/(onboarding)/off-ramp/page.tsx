@@ -57,7 +57,7 @@ const DEFAULT_RESOURCES: OffRampResource[] = [
  */
 export default function OffRampPage() {
   const router = useRouter();
-  const { state, setPhase } = useOnboarding();
+  const { setPhase } = useOnboarding();
 
   useEffect(() => {
     setPhase('phase-2'); // Keep on phase-2 for navigation purposes
@@ -82,8 +82,8 @@ export default function OffRampPage() {
         </h1>
         <p className="text-neutral-600 max-w-lg mx-auto">
           Based on your responses, we think you might benefit from a different
-          type of support than what we currently offer. This doesn't mean
-          you can't get help—it means we want to connect you with the
+          type of support than what we currently offer. This doesn&apos;t mean
+          you can&apos;t get help—it means we want to connect you with the
           best resources for your specific needs.
         </p>
       </div>
@@ -95,8 +95,8 @@ export default function OffRampPage() {
         </h2>
         <p className="text-sm text-neutral-700 mb-4">
           Reaching out for help takes courage. The fact that you completed this
-          assessment shows you're taking an important step toward feeling better.
-          Different people need different types of support, and there's no shame
+          assessment shows you&apos;re taking an important step toward feeling better.
+          Different people need different types of support, and there&apos;s no shame
           in that.
         </p>
         <ul className="space-y-2 text-sm text-neutral-700">
@@ -136,7 +136,7 @@ export default function OffRampPage() {
               1
             </span>
             <span>
-              <strong>If you're in crisis:</strong> Call 988 or text HOME to 741741
+              <strong>If you&apos;re in crisis:</strong> Call 988 or text HOME to 741741
               for immediate support.
             </span>
           </li>
@@ -186,8 +186,8 @@ export default function OffRampPage() {
       {/* Footer message */}
       <div className="text-center text-sm text-neutral-500 pb-8">
         <p>
-          If your situation changes or you'd like to try our assessment again
-          in the future, you're always welcome back.
+          If your situation changes or you&apos;d like to try our assessment again
+          in the future, you&apos;re always welcome back.
         </p>
       </div>
     </div>
