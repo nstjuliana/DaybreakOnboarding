@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -47,11 +47,17 @@ export default function Phase2Page() {
 
   /**
    * Handles saving progress as user answers questions
+   * Memoized to prevent unnecessary re-renders and uses setTimeout
+   * to batch state updates properly
    */
-  function handleSaveProgress(responses: Responses) {
-    setAssessmentResponses(responses);
-    saveProgress();
-  }
+  const handleSaveProgress = useCallback(
+    (responses: Responses) => {
+      setAssessmentResponses(responses);
+      // Defer saveProgress to next tick to avoid batching issues
+      setTimeout(() => saveProgress(), 0);
+    },
+    [setAssessmentResponses, saveProgress]
+  );
 
   /**
    * Handles form submission

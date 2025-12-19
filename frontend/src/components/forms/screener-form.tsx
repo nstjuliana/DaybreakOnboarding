@@ -53,6 +53,12 @@ export function ScreenerForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isInitialMount = useRef(true);
+  const onSaveProgressRef = useRef(onSaveProgress);
+
+  // Keep ref updated with latest callback
+  useEffect(() => {
+    onSaveProgressRef.current = onSaveProgress;
+  }, [onSaveProgress]);
 
   const questions = PSC17_QUESTIONS;
   const answeredCount = Object.keys(responses).length;
@@ -62,14 +68,15 @@ export function ScreenerForm({
 
   /**
    * Auto-save responses when they change (after initial mount)
+   * Uses ref to avoid dependency on callback identity
    */
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
-    onSaveProgress?.(responses);
-  }, [responses, onSaveProgress]);
+    onSaveProgressRef.current?.(responses);
+  }, [responses]);
 
   /**
    * Updates a single response
@@ -196,6 +203,12 @@ export function ScreenerFormPaginated({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isInitialMount = useRef(true);
+  const onSaveProgressRef = useRef(onSaveProgress);
+
+  // Keep ref updated with latest callback
+  useEffect(() => {
+    onSaveProgressRef.current = onSaveProgress;
+  }, [onSaveProgress]);
 
   const questions = PSC17_QUESTIONS;
   const currentQuestion = questions[currentIndex];
@@ -205,14 +218,15 @@ export function ScreenerFormPaginated({
 
   /**
    * Auto-save responses when they change (after initial mount)
+   * Uses ref to avoid dependency on callback identity
    */
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
-    onSaveProgress?.(responses);
-  }, [responses, onSaveProgress]);
+    onSaveProgressRef.current?.(responses);
+  }, [responses]);
 
   function handleResponseChange(value: number) {
     setResponses((prev) => ({ ...prev, [currentQuestion.id]: value }));
