@@ -1,0 +1,91 @@
+# RuboCop Configuration
+#
+# Code style and linting rules for the Rails backend.
+# See https://docs.rubocop.org/rubocop/configuration.html
+
+require:
+  - rubocop-rails
+  - rubocop-rspec
+  - rubocop-performance
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.3
+  Exclude:
+    - 'bin/**/*'
+    - 'db/schema.rb'
+    - 'db/migrate/**/*'
+    - 'vendor/**/*'
+    - 'node_modules/**/*'
+
+# Layout
+Layout/LineLength:
+  Max: 120
+  AllowedPatterns: ['^\s*#']
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+# Metrics
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - 'config/**/*'
+    - 'lib/tasks/**/*'
+
+Metrics/MethodLength:
+  Max: 20
+  Exclude:
+    - 'db/migrate/**/*'
+
+Metrics/ClassLength:
+  Max: 200
+
+Metrics/AbcSize:
+  Max: 25
+  Exclude:
+    - 'db/migrate/**/*'
+
+# Style
+Style/Documentation:
+  Enabled: true
+  Exclude:
+    - 'spec/**/*'
+    - 'db/migrate/**/*'
+    - 'config/**/*'
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+
+Style/StringLiterals:
+  EnforcedStyle: single_quotes
+
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
+Style/WordArray:
+  EnforcedStyle: brackets
+
+# Rails
+Rails/FilePath:
+  EnforcedStyle: arguments
+
+Rails/SkipsModelValidations:
+  Enabled: true
+  AllowedMethods:
+    - 'touch'
+
+# RSpec
+RSpec/MultipleExpectations:
+  Max: 5
+
+RSpec/ExampleLength:
+  Max: 15
+
+RSpec/NestedGroups:
+  Max: 4
+
+RSpec/DescribeClass:
+  Exclude:
+    - 'spec/requests/**/*'
+

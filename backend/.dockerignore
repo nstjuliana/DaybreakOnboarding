@@ -1,0 +1,52 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Logs
+log/*
+*.log
+
+# Temp files
+tmp/*
+!tmp/.keep
+
+# Coverage
+coverage/
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment files (secrets)
+.env
+.env*.local
+
+# Test artifacts
+.rspec_status
+spec/examples.txt
+
+# Vendor (installed in container)
+vendor/bundle
+
+# Node (if any)
+node_modules/
+
+# Storage (use volumes)
+storage/*
+!storage/.keep
+
+# Documentation (not needed in container)
+README.md
+CHANGELOG.md
+

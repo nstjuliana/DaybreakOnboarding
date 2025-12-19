@@ -1,0 +1,26 @@
+# Active Storage Configuration
+#
+# Configures file storage services for different environments.
+# See _docs/tech-stack.md for HIPAA requirements.
+
+test:
+  service: Disk
+  root: <%= Rails.root.join("tmp/storage") %>
+
+local:
+  service: Disk
+  root: <%= Rails.root.join("storage") %>
+
+# AWS S3 for production (HIPAA-compliant with encryption)
+# Uncomment and configure when AWS credentials are available
+#
+# amazon:
+#   service: S3
+#   access_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+#   secret_access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+#   region: <%= ENV.fetch('AWS_REGION', 'us-east-1') %>
+#   bucket: <%= ENV.fetch('AWS_S3_BUCKET', 'daybreak-storage') %>
+#   upload:
+#     server_side_encryption: 'aws:kms'
+#     ssekms_key_id: <%= ENV['AWS_KMS_KEY_ID'] %>
+
