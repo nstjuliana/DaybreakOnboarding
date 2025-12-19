@@ -182,3 +182,4 @@ export function mapApiPatient(apiPatient: Record<string, unknown>): Patient {
   };
 }
 
+
