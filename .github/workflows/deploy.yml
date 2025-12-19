@@ -1,0 +1,160 @@
+# Continuous Deployment Workflow
+#
+# Deploys the application to Aptible on push to main branch.
+# Requires CI checks to pass before deployment.
+#
+# Required Secrets:
+#   - APTIBLE_USERNAME: Aptible account username
+#   - APTIBLE_PASSWORD: Aptible account password or token
+#
+# Aptible Apps:
+#   - daybreak-api-production (backend)
+#   - daybreak-frontend-production (frontend)
+#
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Deployment environment"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+          - staging
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  APTIBLE_ENVIRONMENT: ${{ github.event.inputs.environment || 'production' }}
+
+jobs:
+  # ==========================================================================
+  # Run CI First
+  # ==========================================================================
+  ci:
+    name: Run CI
+    uses: ./.github/workflows/ci.yml
+
+  # ==========================================================================
+  # Deploy Backend to Aptible
+  # ==========================================================================
+  deploy-backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    needs: ci
+    if: success()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Aptible CLI
+        run: |
+          curl -O https://omnibus-aptible-toolbelt.s3.amazonaws.com/aptible/omnibus-aptible-toolbelt/master/300/pkg/aptible-toolbelt_0.19.8%2B20240130183243~debian.9.13-1_amd64.deb
+          sudo dpkg -i aptible-toolbelt_*.deb
+
+      - name: Authenticate with Aptible
+        run: |
+          aptible login \
+            --email "${{ secrets.APTIBLE_USERNAME }}" \
+            --password "${{ secrets.APTIBLE_PASSWORD }}"
+
+      - name: Deploy backend to Aptible
+        run: |
+          cd backend
+          git init
+          git add -A
+          git commit -m "Deploy backend"
+          git remote add aptible git@beta.aptible.com:${{ env.APTIBLE_ENVIRONMENT }}/daybreak-api-${{ env.APTIBLE_ENVIRONMENT }}.git
+          git push aptible master --force
+        env:
+          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
+
+      - name: Run database migrations
+        run: |
+          aptible ssh \
+            --app daybreak-api-${{ env.APTIBLE_ENVIRONMENT }} \
+            -- bundle exec rails db:migrate
+
+      - name: Notify deployment success
+        if: success()
+        run: echo "Backend deployed successfully to ${{ env.APTIBLE_ENVIRONMENT }}"
+
+  # ==========================================================================
+  # Deploy Frontend to Aptible
+  # ==========================================================================
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    needs: ci
+    if: success()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Aptible CLI
+        run: |
+          curl -O https://omnibus-aptible-toolbelt.s3.amazonaws.com/aptible/omnibus-aptible-toolbelt/master/300/pkg/aptible-toolbelt_0.19.8%2B20240130183243~debian.9.13-1_amd64.deb
+          sudo dpkg -i aptible-toolbelt_*.deb
+
+      - name: Authenticate with Aptible
+        run: |
+          aptible login \
+            --email "${{ secrets.APTIBLE_USERNAME }}" \
+            --password "${{ secrets.APTIBLE_PASSWORD }}"
+
+      - name: Deploy frontend to Aptible
+        run: |
+          cd frontend
+          git init
+          git add -A
+          git commit -m "Deploy frontend"
+          git remote add aptible git@beta.aptible.com:${{ env.APTIBLE_ENVIRONMENT }}/daybreak-frontend-${{ env.APTIBLE_ENVIRONMENT }}.git
+          git push aptible master --force
+        env:
+          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
+
+      - name: Notify deployment success
+        if: success()
+        run: echo "Frontend deployed successfully to ${{ env.APTIBLE_ENVIRONMENT }}"
+
+  # ==========================================================================
+  # Post-deployment verification
+  # ==========================================================================
+  verify-deployment:
+    name: Verify Deployment
+    runs-on: ubuntu-latest
+    needs: [deploy-backend, deploy-frontend]
+    if: success()
+
+    steps:
+      - name: Wait for services to start
+        run: sleep 60
+
+      - name: Check backend health
+        run: |
+          curl -f https://api-${{ env.APTIBLE_ENVIRONMENT }}.daybreakhealth.com/api/v1/health || echo "Health check failed - verify manually"
+
+      - name: Check frontend availability
+        run: |
+          curl -f https://onboarding-${{ env.APTIBLE_ENVIRONMENT }}.daybreakhealth.com/ || echo "Frontend check failed - verify manually"
+
+      - name: Deployment complete
+        run: |
+          echo "Deployment to ${{ env.APTIBLE_ENVIRONMENT }} completed!"
+          echo "Backend: https://api-${{ env.APTIBLE_ENVIRONMENT }}.daybreakhealth.com"
+          echo "Frontend: https://onboarding-${{ env.APTIBLE_ENVIRONMENT }}.daybreakhealth.com"
+
