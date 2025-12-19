@@ -8,12 +8,14 @@
 
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useOnboarding } from '@/stores/onboarding-store';
 import {
   MAIN_PHASES,
+  PHASES,
   getPhaseStatus,
+  getDisplayPhaseId,
   type PhaseId,
 } from '@/lib/constants/phases';
 import { ProgressStep } from './progress-step';
@@ -24,6 +26,28 @@ import { ProgressStep } from './progress-step';
 interface ProgressIndicatorProps {
   /** Additional CSS classes */
   className?: string;
+}
+
+/**
+ * Gets the phase ID from the current URL pathname
+ * This ensures the progress indicator reflects the actual page being viewed
+ *
+ * @param pathname - Current URL pathname
+ * @returns PhaseId derived from the URL
+ */
+function getPhaseFromPathname(pathname: string): PhaseId {
+  // Find the phase whose route matches the current pathname
+  const matchedPhase = PHASES.find((phase) => {
+    // Handle exact matches
+    if (pathname === phase.route) return true;
+    // Handle sub-routes (e.g., /phase-3/insurance matches phase-3)
+    if (pathname.startsWith(phase.route + '/')) return true;
+    // Special case for phase-1-5 URL mapping to phase-1.5
+    if (pathname === '/phase-1-5' && phase.id === 'phase-1.5') return true;
+    return false;
+  });
+
+  return matchedPhase?.id || 'phase-0';
 }
 
 /**
@@ -38,7 +62,11 @@ interface ProgressIndicatorProps {
  */
 export function ProgressIndicator({ className }: ProgressIndicatorProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { state } = useOnboarding();
+
+  // Use the URL pathname to determine current phase (more reliable than state)
+  const currentPhaseFromUrl = getPhaseFromPathname(pathname);
 
   /**
    * Handles navigation to a completed phase
@@ -46,7 +74,7 @@ export function ProgressIndicator({ className }: ProgressIndicatorProps) {
   function handlePhaseClick(phaseId: PhaseId) {
     const status = getPhaseStatus(
       phaseId,
-      state.currentPhase,
+      currentPhaseFromUrl,
       state.completedPhases
     );
 
@@ -68,7 +96,7 @@ export function ProgressIndicator({ className }: ProgressIndicatorProps) {
         {MAIN_PHASES.map((phase, index) => {
           const status = getPhaseStatus(
             phase.id,
-            state.currentPhase,
+            currentPhaseFromUrl,
             state.completedPhases
           );
 
@@ -98,10 +126,15 @@ export function ProgressIndicator({ className }: ProgressIndicatorProps) {
  * Shows only current phase with fraction
  */
 export function ProgressIndicatorMobile({ className }: ProgressIndicatorProps) {
-  const { state } = useOnboarding();
+  const pathname = usePathname();
 
-  const currentPhase = MAIN_PHASES.find((p) => p.id === state.currentPhase);
-  const currentIndex = MAIN_PHASES.findIndex((p) => p.id === state.currentPhase);
+  // Use URL pathname to determine current phase (more reliable than state)
+  const currentPhaseFromUrl = getPhaseFromPathname(pathname);
+  
+  // Map hidden phases to their display equivalent
+  const displayPhaseId = getDisplayPhaseId(currentPhaseFromUrl);
+  const currentPhase = MAIN_PHASES.find((p) => p.id === displayPhaseId);
+  const currentIndex = MAIN_PHASES.findIndex((p) => p.id === displayPhaseId);
   const totalPhases = MAIN_PHASES.length;
 
   if (!currentPhase) return null;

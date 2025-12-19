@@ -143,6 +143,21 @@ export function getPreviousPhase(currentId: PhaseId): Phase | undefined {
 }
 
 /**
+ * Gets the display phase ID for progress indicator
+ * Maps hidden phases (like phase-1.5) to their display equivalent
+ *
+ * @param phaseId - Phase ID to map
+ * @returns Display phase ID for progress indicator
+ */
+export function getDisplayPhaseId(phaseId: PhaseId): PhaseId {
+  // Map phase-1.5 to phase-2 (Assess) since it's the triage leading into assessment
+  if (phaseId === 'phase-1.5') {
+    return 'phase-2';
+  }
+  return phaseId;
+}
+
+/**
  * Determines the status of a phase relative to the current phase
  *
  * @param phaseId - Phase to check
@@ -155,11 +170,12 @@ export function getPhaseStatus(
   currentPhaseId: PhaseId,
   completedPhases: PhaseId[]
 ): PhaseStatus {
-  if (completedPhases.includes(phaseId)) {
-    return 'completed';
-  }
+  // Map hidden phases to their display equivalent for comparison
+  const displayCurrentPhaseId = getDisplayPhaseId(currentPhaseId);
 
-  if (phaseId === currentPhaseId) {
+  // IMPORTANT: Check current phase FIRST - even if a phase was previously
+  // completed, if user navigates back to it, it should show as current
+  if (phaseId === currentPhaseId || phaseId === displayCurrentPhaseId) {
     return 'current';
   }
 
@@ -170,7 +186,14 @@ export function getPhaseStatus(
     return 'locked';
   }
 
+  // Only show as completed if it's before the current phase
+  // AND either explicitly completed or has a lower order
   if (phase.order < currentPhase.order) {
+    return 'completed';
+  }
+
+  // Check explicit completion for phases at or after current
+  if (completedPhases.includes(phaseId)) {
     return 'completed';
   }
 

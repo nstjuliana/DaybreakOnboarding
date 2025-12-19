@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -49,25 +49,36 @@ function ConcernCard({
   onToggle: () => void;
   disabled: boolean;
 }) {
+  const isDisabledForSelection = disabled && !isSelected;
+  
+  /**
+   * Handles click with explicit disabled check
+   */
+  function handleClick() {
+    if (isDisabledForSelection) return;
+    onToggle();
+  }
+  
   return (
     <button
       type="button"
-      onClick={onToggle}
-      disabled={disabled && !isSelected}
+      onClick={handleClick}
+      disabled={isDisabledForSelection}
+      aria-disabled={isDisabledForSelection}
       className={cn(
-        'relative p-5 rounded-xl border-2 text-left transition-all duration-200',
+        'relative p-5 rounded-xl text-left transition-all duration-200',
         'focus:outline-none focus:ring-2 focus:ring-primary-300 focus:ring-offset-2',
         isSelected
-          ? 'border-primary-500 bg-primary-50 shadow-md'
-          : 'border-neutral-200 bg-white hover:border-primary-300 hover:shadow-sm',
-        disabled && !isSelected && 'opacity-50 cursor-not-allowed'
+          ? 'border-[3px] border-neutral-800 bg-primary-50 shadow-lg ring-1 ring-neutral-800/10'
+          : 'border-2 border-neutral-200 bg-white hover:border-primary-300 hover:shadow-sm',
+        isDisabledForSelection && 'opacity-50 cursor-not-allowed hover:border-neutral-200 hover:shadow-none'
       )}
       aria-pressed={isSelected}
     >
       {/* Selection indicator */}
       {isSelected && (
-        <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-primary-500 flex items-center justify-center">
-          <Check className="w-4 h-4 text-white" />
+        <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-neutral-800 flex items-center justify-center shadow-md">
+          <Check className="w-4 h-4 text-white" strokeWidth={3} />
         </div>
       )}
 
@@ -122,20 +133,33 @@ export function ConcernSelector({
 }: ConcernSelectorProps) {
   const [selected, setSelected] = useState<ConcernArea[]>(initialSelected);
 
-  // Notify parent when selection changes (after render, not during)
-  useEffect(() => {
-    onSelectionChange?.(selected);
-  }, [selected, onSelectionChange]);
-
   /**
    * Toggles a concern selection
+   * Handles max selection limit inline to avoid race conditions
    */
   function handleToggle(concernId: ConcernArea) {
-    setSelected((prev) =>
-      prev.includes(concernId)
-        ? prev.filter((id) => id !== concernId)
-        : [...prev, concernId]
-    );
+    setSelected((prev) => {
+      const isCurrentlySelected = prev.includes(concernId);
+      
+      // If already selected, allow deselection
+      if (isCurrentlySelected) {
+        const newSelected = prev.filter((id) => id !== concernId);
+        // Notify parent of change after state update
+        setTimeout(() => onSelectionChange?.(newSelected), 0);
+        return newSelected;
+      }
+      
+      // If at max and trying to add, don't allow
+      if (prev.length >= maxSelections) {
+        return prev;
+      }
+      
+      // Add the new selection
+      const newSelected = [...prev, concernId];
+      // Notify parent of change after state update
+      setTimeout(() => onSelectionChange?.(newSelected), 0);
+      return newSelected;
+    });
   }
 
   /**
