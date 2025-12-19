@@ -1773,6 +1773,39 @@ jobs:
       - run: npm run test:e2e
 ```
 
+### Aptible Deployment Pipeline
+
+For production deployment to Aptible, we use the official `aptible/aptible-deploy-action`:
+
+```yaml
+# .github/workflows/deploy.yml (simplified)
+- name: Deploy to Aptible
+  uses: aptible/aptible-deploy-action@v5
+  with:
+    type: git
+    app: daybreak-api-production
+    environment: daybreak-onboarding
+    username: ${{ secrets.APTIBLE_USERNAME }}
+    password: ${{ secrets.APTIBLE_PASSWORD }}
+```
+
+**Monorepo Pattern:** Since backend and frontend are subdirectories, each deploy job:
+1. Checks out the full repo
+2. Moves the subdirectory contents to workspace root
+3. Commits and deploys via the Aptible action
+
+**Required GitHub Secrets:**
+
+| Secret | Description |
+|--------|-------------|
+| `APTIBLE_USERNAME` | Aptible account email |
+| `APTIBLE_PASSWORD` | Aptible account password |
+
+**Aptible Apps:**
+- `daybreak-api-production` — Rails backend
+- `daybreak-frontend-production` — Next.js frontend
+- `daybreak-db` — PostgreSQL database
+
 ---
 
 ## Infrastructure Diagram
