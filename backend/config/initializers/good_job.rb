@@ -29,7 +29,7 @@ Rails.application.configure do
 
   # Queue configuration
   # Format: "queue_name:max_threads;queue_name2:max_threads2"
-  config.good_job.queues = ENV.fetch('GOOD_JOB_QUEUES', 'critical:5;default:3;low:1')
+  config.good_job.queues = ENV.fetch('GOOD_JOB_QUEUES', 'critical:5;chat:3;default:2;low:1')
 
   # Maximum threads for async mode
   config.good_job.max_threads = ENV.fetch('GOOD_JOB_MAX_THREADS', 5).to_i
@@ -51,6 +51,7 @@ end
 # Lower number = higher priority
 QUEUE_PRIORITIES = {
   critical: 0,    # Safety pivots, crisis detection
+  chat: 3,        # Chat message processing
   default: 5,     # Standard processing
   ai: 10,         # LLM API calls
   mailers: 15,    # Email delivery
