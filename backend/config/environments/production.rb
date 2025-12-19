@@ -68,7 +68,7 @@ Rails.application.configure do
   # Allow Aptible endpoints and custom domains
   config.hosts = [
     ENV.fetch('APP_HOST', 'daybreakhealth.com'),
-    /.*\.on-aptible\.com/  # Aptible default endpoints
+    /.*\.on-aptible\.com/ # Aptible default endpoints
   ]
   config.hosts << ENV['APTIBLE_HOSTNAME'] if ENV['APTIBLE_HOSTNAME'].present?
 

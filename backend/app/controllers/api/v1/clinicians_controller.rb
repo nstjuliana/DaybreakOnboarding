@@ -25,9 +25,7 @@ module Api
         clinicians = Clinician.active.kept
 
         # Optional specialty filter
-        if params[:specialty].present?
-          clinicians = clinicians.with_specialty(params[:specialty])
-        end
+        clinicians = clinicians.with_specialty(params[:specialty]) if params[:specialty].present?
 
         clinicians = paginate(clinicians.order(:last_name))
 
@@ -94,4 +92,3 @@ module Api
     end
   end
 end
-

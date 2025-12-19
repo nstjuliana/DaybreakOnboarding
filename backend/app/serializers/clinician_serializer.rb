@@ -11,4 +11,3 @@ class ClinicianSerializer
 
   attributes :id, :name, :specialty, :bio, :avatar_url, :availability, :created_at, :updated_at
 end
-

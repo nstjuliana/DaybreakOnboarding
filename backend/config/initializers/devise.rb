@@ -113,14 +113,13 @@ Devise.setup do |config|
 
   # ==> Warden Configuration
   config.warden do |manager|
-    manager.failure_app = ->(env) do
+    manager.failure_app = lambda { |_env|
       # Return JSON error for API requests
       [
         401,
         { 'Content-Type' => 'application/json' },
         [{ success: false, error: 'Authentication required' }.to_json]
       ]
-    end
+    }
   end
 end
-

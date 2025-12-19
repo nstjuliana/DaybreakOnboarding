@@ -69,7 +69,7 @@ module Api
         auth_header = request.headers['Authorization']
         return nil unless auth_header&.start_with?('Bearer ')
 
-        auth_header.split(' ').last
+        auth_header.split.last
       end
 
       ##
@@ -79,8 +79,7 @@ module Api
       # @return [User, nil] The user or nil
       #
       def decode_jwt_token(token)
-        decoded = Warden::JWTAuth::UserDecoder.new.call(token, :user, nil)
-        decoded
+        Warden::JWTAuth::UserDecoder.new.call(token, :user, nil)
       rescue StandardError
         nil
       end

@@ -43,4 +43,3 @@ class ClinicianPolicy < ApplicationPolicy
     end
   end
 end
-

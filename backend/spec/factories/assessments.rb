@@ -16,7 +16,7 @@
 #
 FactoryBot.define do
   factory :assessment do
-    association :user, factory: %i[user confirmed]
+    association :user, factory: [:user, :confirmed]
     screener_type { 'psc17' }
     status { 'pending' }
     responses { {} }
@@ -46,7 +46,7 @@ FactoryBot.define do
       completed_at { Time.current }
       score { rand(0..34) }
       responses do
-        (1..17).to_h { |i| ["q#{i}".to_sym, rand(0..2)] }
+        (1..17).to_h { |i| [:"q#{i}", rand(0..2)] }
       end
     end
 
@@ -57,13 +57,13 @@ FactoryBot.define do
       score { 12 }
       severity { 'moderate' }
       responses do
-        (1..17).to_h { |i| ["q#{i}".to_sym, rand(0..2)] }
+        (1..17).to_h { |i| [:"q#{i}", rand(0..2)] }
       end
       results do
         {
           fit_for_daybreak: true,
           recommended_care_level: 'outpatient',
-          priority_concerns: %w[anxiety mood],
+          priority_concerns: ['anxiety', 'mood'],
           summary: 'Moderate symptoms consistent with anxiety and depression.'
         }
       end
@@ -89,7 +89,7 @@ FactoryBot.define do
         {
           fit_for_daybreak: true,
           recommended_care_level: 'intensive_outpatient',
-          priority_concerns: %w[depression suicide_risk],
+          priority_concerns: ['depression', 'suicide_risk'],
           requires_safety_planning: true
         }
       end
@@ -118,4 +118,3 @@ FactoryBot.define do
     end
   end
 end
-

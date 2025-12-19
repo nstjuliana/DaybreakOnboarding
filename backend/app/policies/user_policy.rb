@@ -42,4 +42,3 @@ class UserPolicy < ApplicationPolicy
     end
   end
 end
-

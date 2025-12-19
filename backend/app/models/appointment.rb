@@ -51,11 +51,11 @@ class Appointment < ApplicationRecord
   validate :scheduled_in_future, on: :create
 
   # Scopes
-  scope :upcoming, -> { where('scheduled_at > ?', Time.current).where(status: %w[scheduled confirmed]) }
-  scope :past, -> { where('scheduled_at < ?', Time.current) }
+  scope :upcoming, -> { where('scheduled_at > ?', Time.current).where(status: ['scheduled', 'confirmed']) }
+  scope :past, -> { where(scheduled_at: ...Time.current) }
   scope :for_clinician, ->(clinician) { where(clinician: clinician) }
   scope :for_user, ->(user) { where(user: user) }
-  scope :on_date, ->(date) { where(scheduled_at: date.beginning_of_day..date.end_of_day) }
+  scope :on_date, ->(date) { where(scheduled_at: date.all_day) }
 
   ##
   # Confirms the appointment
@@ -113,7 +113,7 @@ class Appointment < ApplicationRecord
   # @return [Boolean]
   #
   def cancellable?
-    %w[scheduled confirmed].include?(status) && scheduled_at > Time.current
+    ['scheduled', 'confirmed'].include?(status) && scheduled_at > Time.current
   end
 
   ##
@@ -122,7 +122,7 @@ class Appointment < ApplicationRecord
   # @return [Boolean]
   #
   def upcoming?
-    scheduled_at > Time.current && %w[scheduled confirmed].include?(status)
+    scheduled_at > Time.current && ['scheduled', 'confirmed'].include?(status)
   end
 
   ##
@@ -145,4 +145,3 @@ class Appointment < ApplicationRecord
     errors.add(:scheduled_at, 'must be in the future')
   end
 end
-

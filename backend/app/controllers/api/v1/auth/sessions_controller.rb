@@ -68,7 +68,7 @@ module Api
             }, status: :ok, headers: { 'Authorization' => "Bearer #{token}" }
           else
             # Increment failed attempts if user exists
-            user&.increment_failed_attempts if user&.respond_to?(:increment_failed_attempts)
+            user&.increment_failed_attempts if user.respond_to?(:increment_failed_attempts)
 
             render json: {
               success: false,
@@ -108,7 +108,7 @@ module Api
         # @return [ActionController::Parameters]
         #
         def login_params
-          params.require(:user).permit(:email, :password)
+          params.expect(user: [:email, :password])
         end
 
         ##
@@ -145,4 +145,3 @@ module Api
     end
   end
 end
-

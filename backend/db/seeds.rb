@@ -9,13 +9,13 @@
 # @see db/seeds/ for individual seed files
 #
 
-puts '=' * 50
-puts 'Seeding database...'
-puts '=' * 50
+Rails.logger.debug '=' * 50
+Rails.logger.debug 'Seeding database...'
+Rails.logger.debug '=' * 50
 
 # Load clinicians seed
-load Rails.root.join('db/seeds/clinicians.rb')
+load Rails.root.join('db', 'seeds', 'clinicians.rb', 'clinicians.rb')
 
-puts '=' * 50
-puts 'Database seeding complete!'
-puts '=' * 50
+Rails.logger.debug '=' * 50
+Rails.logger.debug 'Database seeding complete!'
+Rails.logger.debug '=' * 50

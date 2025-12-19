@@ -77,12 +77,12 @@ module Api
       # @return [ActionController::Parameters]
       #
       def user_params
-        params.require(:user).permit(
-          :first_name,
-          :last_name,
-          :phone,
-          :date_of_birth,
-          profile: {}
+        params.expect(
+          user: [:first_name,
+                 :last_name,
+                 :phone,
+                 :date_of_birth,
+                 { profile: {} }]
         )
       end
 
@@ -112,4 +112,3 @@ module Api
     end
   end
 end
-

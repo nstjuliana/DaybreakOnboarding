@@ -13,7 +13,19 @@ module Api
   module V1
     class AssessmentsController < BaseController
       before_action :authenticate_user!, except: [:create]
-      before_action :set_assessment, only: %i[show update]
+      before_action :set_assessment, only: [:show, :update]
+
+      ##
+      # Returns an assessment by ID
+      #
+      # GET /api/v1/assessments/:id
+      #
+      # @return [JSON] Assessment data
+      #
+      def show
+        authorize @assessment
+        render_success(assessment_response(@assessment))
+      end
 
       ##
       # Creates a new assessment
@@ -48,18 +60,6 @@ module Api
             errors: assessment.errors.full_messages
           )
         end
-      end
-
-      ##
-      # Returns an assessment by ID
-      #
-      # GET /api/v1/assessments/:id
-      #
-      # @return [JSON] Assessment data
-      #
-      def show
-        authorize @assessment
-        render_success(assessment_response(@assessment))
       end
 
       ##
@@ -123,9 +123,9 @@ module Api
       # Permitted parameters for creating an assessment
       #
       def assessment_params
-        params.require(:assessment).permit(
-          :screener_type,
-          responses: {}
+        params.expect(
+          assessment: [:screener_type,
+                       { responses: {} }]
         )
       end
 
@@ -133,12 +133,12 @@ module Api
       # Permitted parameters for updating an assessment
       #
       def assessment_update_params
-        params.require(:assessment).permit(
-          :status,
-          :score,
-          :severity,
-          :completed_at,
-          responses: {}
+        params.expect(
+          assessment: [:status,
+                       :score,
+                       :severity,
+                       :completed_at,
+                       { responses: {} }]
         )
       end
 
@@ -190,4 +190,3 @@ module Api
     end
   end
 end
-

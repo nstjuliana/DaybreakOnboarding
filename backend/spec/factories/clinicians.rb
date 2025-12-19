@@ -15,12 +15,12 @@ FactoryBot.define do
   factory :clinician do
     first_name { Faker::Name.first_name }
     last_name { Faker::Name.last_name }
-    credentials { %w[LCSW PhD PsyD LMFT LPC].sample }
+    credentials { ['LCSW', 'PhD', 'PsyD', 'LMFT', 'LPC'].sample }
     bio { Faker::Lorem.paragraph(sentence_count: 3) }
     email { Faker::Internet.email }
     phone { Faker::PhoneNumber.cell_phone }
     status { 'active' }
-    specialties { %w[anxiety depression adolescents].sample(2) }
+    specialties { ['anxiety', 'depression', 'adolescents'].sample(2) }
 
     trait :active do
       status { 'active' }
@@ -55,15 +55,15 @@ FactoryBot.define do
     end
 
     trait :anxiety_specialist do
-      specialties { %w[anxiety panic_disorder phobias] }
+      specialties { ['anxiety', 'panic_disorder', 'phobias'] }
     end
 
     trait :depression_specialist do
-      specialties { %w[depression mood_disorders grief] }
+      specialties { ['depression', 'mood_disorders', 'grief'] }
     end
 
     trait :adolescent_specialist do
-      specialties { %w[adolescents teens youth] }
+      specialties { ['adolescents', 'teens', 'youth'] }
     end
 
     trait :discarded do
@@ -71,4 +71,3 @@ FactoryBot.define do
     end
   end
 end
-

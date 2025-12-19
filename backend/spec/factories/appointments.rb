@@ -16,9 +16,9 @@
 #
 FactoryBot.define do
   factory :appointment do
-    association :user, factory: %i[user confirmed]
-    association :clinician, factory: %i[clinician active]
-    association :assessment, factory: %i[assessment analyzed]
+    association :user, factory: [:user, :confirmed]
+    association :clinician, factory: [:clinician, :active]
+    association :assessment, factory: [:assessment, :analyzed]
 
     scheduled_at { 3.days.from_now }
     duration_minutes { 50 }
@@ -100,4 +100,3 @@ FactoryBot.define do
     end
   end
 end
-

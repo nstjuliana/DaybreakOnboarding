@@ -88,4 +88,3 @@ class Clinician < ApplicationRecord
     active.kept.order('RANDOM()').first
   end
 end
-

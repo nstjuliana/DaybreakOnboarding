@@ -13,4 +13,3 @@ class AssessmentSerializer
 
   belongs_to :user
 end
-

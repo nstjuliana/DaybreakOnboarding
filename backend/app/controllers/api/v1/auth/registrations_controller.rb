@@ -69,7 +69,7 @@ module Api
               success: false,
               error: 'Registration failed',
               errors: user.errors.full_messages
-            }, status: :unprocessable_entity
+            }, status: :unprocessable_content
           end
         end
 
@@ -81,15 +81,15 @@ module Api
         # @return [ActionController::Parameters]
         #
         def registration_params
-          params.require(:user).permit(
-            :email,
-            :password,
-            :password_confirmation,
-            :user_type,
-            :first_name,
-            :last_name,
-            :phone,
-            :date_of_birth
+          params.expect(
+            user: [:email,
+                   :password,
+                   :password_confirmation,
+                   :user_type,
+                   :first_name,
+                   :last_name,
+                   :phone,
+                   :date_of_birth]
           )
         end
 
@@ -124,4 +124,3 @@ module Api
     end
   end
 end
-
