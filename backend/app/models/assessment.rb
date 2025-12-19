@@ -23,6 +23,7 @@ class Assessment < ApplicationRecord
   # Associations
   belongs_to :user, optional: true
   has_one :appointment, dependent: :nullify
+  has_one :conversation, dependent: :destroy
 
   # Status definitions
   STATUSES = {
@@ -43,7 +44,7 @@ class Assessment < ApplicationRecord
   }.freeze
 
   # Severity levels
-  SEVERITY_LEVELS = %w[minimal mild moderate severe].freeze
+  SEVERITY_LEVELS = ['minimal', 'mild', 'moderate', 'severe'].freeze
 
   # Validations
   validates :screener_type, presence: true, inclusion: { in: SCREENER_TYPES.keys }
@@ -53,7 +54,7 @@ class Assessment < ApplicationRecord
   # Scopes
   scope :pending, -> { where(status: 'pending') }
   scope :in_progress, -> { where(status: 'in_progress') }
-  scope :completed, -> { where(status: %w[completed analyzed]) }
+  scope :completed, -> { where(status: ['completed', 'analyzed']) }
   scope :by_screener, ->(type) { where(screener_type: type) }
 
   ##
@@ -118,7 +119,7 @@ class Assessment < ApplicationRecord
   # @return [Boolean]
   #
   def editable?
-    %w[pending in_progress].include?(status)
+    ['pending', 'in_progress'].include?(status)
   end
 
   ##
@@ -127,7 +128,7 @@ class Assessment < ApplicationRecord
   # @return [Boolean]
   #
   def finished?
-    %w[completed analyzed].include?(status)
+    ['completed', 'analyzed'].include?(status)
   end
 
   ##
@@ -141,4 +142,3 @@ class Assessment < ApplicationRecord
     ((completed_at - started_at) / 60).round
   end
 end
-
