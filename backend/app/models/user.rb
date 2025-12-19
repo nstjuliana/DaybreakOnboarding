@@ -21,8 +21,10 @@ class User < ApplicationRecord
   include Discard::Model
 
   # Devise modules
+  # Note: :confirmable disabled for MVP (email confirmation not required)
+  # Re-enable when email service is configured
   devise :database_authenticatable, :registerable, :recoverable,
-         :rememberable, :validatable, :confirmable, :lockable,
+         :rememberable, :validatable, :lockable,
          :timeoutable, :trackable, :jwt_authenticatable,
          jwt_revocation_strategy: JwtDenylist
 

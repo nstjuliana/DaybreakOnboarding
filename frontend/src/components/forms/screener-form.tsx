@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -52,6 +52,7 @@ export function ScreenerForm({
   const [responses, setResponses] = useState<Responses>(initialResponses);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isInitialMount = useRef(true);
 
   const questions = PSC17_QUESTIONS;
   const answeredCount = Object.keys(responses).length;
@@ -60,18 +61,24 @@ export function ScreenerForm({
   const progress = Math.round((answeredCount / totalQuestions) * 100);
 
   /**
+   * Auto-save responses when they change (after initial mount)
+   */
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    onSaveProgress?.(responses);
+  }, [responses, onSaveProgress]);
+
+  /**
    * Updates a single response
    */
   const handleResponseChange = useCallback(
     (questionId: string, value: number) => {
-      setResponses((prev) => {
-        const updated = { ...prev, [questionId]: value };
-        // Auto-save on each response
-        onSaveProgress?.(updated);
-        return updated;
-      });
+      setResponses((prev) => ({ ...prev, [questionId]: value }));
     },
-    [onSaveProgress]
+    []
   );
 
   /**
@@ -188,6 +195,7 @@ export function ScreenerFormPaginated({
   const [responses, setResponses] = useState<Responses>(initialResponses);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isInitialMount = useRef(true);
 
   const questions = PSC17_QUESTIONS;
   const currentQuestion = questions[currentIndex];
@@ -195,12 +203,19 @@ export function ScreenerFormPaginated({
   const isLastQuestion = currentIndex === totalQuestions - 1;
   const canGoNext = responses[currentQuestion.id] !== undefined;
 
+  /**
+   * Auto-save responses when they change (after initial mount)
+   */
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    onSaveProgress?.(responses);
+  }, [responses, onSaveProgress]);
+
   function handleResponseChange(value: number) {
-    setResponses((prev) => {
-      const updated = { ...prev, [currentQuestion.id]: value };
-      onSaveProgress?.(updated);
-      return updated;
-    });
+    setResponses((prev) => ({ ...prev, [currentQuestion.id]: value }));
   }
 
   function handleNext() {
