@@ -27,18 +27,26 @@ Rails.application.routes.draw do
       end
 
       # Current user routes
-      resource :user, only: %i[show update], controller: 'users', path: 'users/me'
+      resource :user, only: [:show, :update], controller: 'users', path: 'users/me'
 
       # Assessments
-      resources :assessments, only: %i[create show update]
+      resources :assessments, only: [:create, :show, :update]
 
       # Clinicians
-      resources :clinicians, only: %i[index show] do
+      resources :clinicians, only: [:index, :show] do
         get 'random', on: :collection
       end
 
       # Appointments (stub for MVP)
-      resources :appointments, only: %i[create show index]
+      resources :appointments, only: [:create, :show, :index]
+
+      # Conversations (AI Chat)
+      resources :conversations, only: [:create, :show] do
+        # Chat messages within a conversation
+        resources :messages, only: [:create], controller: 'chat'
+        get 'stream', to: 'chat#stream'
+        post 'safety_response', to: 'chat#safety_response'
+      end
     end
   end
 
