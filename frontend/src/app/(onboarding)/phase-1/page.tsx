@@ -44,11 +44,12 @@ export default function Phase1Page() {
 
   /**
    * Handles continue button click
+   * Routes to Phase 1.5 (Triage Pulse) for concern selection
    */
   function handleContinue() {
     completePhase('phase-1');
-    setPhase('phase-2');
-    router.push('/phase-2');
+    setPhase('phase-1.5');
+    router.push('/phase-1-5');
   }
 
   /**
@@ -87,7 +88,7 @@ export default function Phase1Page() {
             onClick={handleContinue}
             className="min-w-[200px] gap-2 order-1 sm:order-2"
           >
-            Let's Get Started
+            Let&apos;s Get Started
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
