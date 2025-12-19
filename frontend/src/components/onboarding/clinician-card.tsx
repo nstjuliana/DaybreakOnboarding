@@ -1,7 +1,7 @@
 /**
  * @file ClinicianCard Component
  * @description Displays a clinician profile card for the matching step.
- *              Shows photo, name, credentials, bio, and specialties.
+ *              Shows photo, name, credentials, bio, specialties, and insurance match status.
  *
  * @see {@link _docs/user-flow.md} Phase 3D: Clinician Matching
  */
@@ -9,7 +9,7 @@
 'use client';
 
 import Image from 'next/image';
-import { User } from 'lucide-react';
+import { User, CheckCircle, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Clinician } from '@/types/clinician';
 import { getSpecialtyLabel } from '@/types/clinician';
@@ -26,6 +26,28 @@ interface ClinicianCardProps {
   onClick?: () => void;
   /** Additional CSS classes */
   className?: string;
+  /** User's insurance provider for match highlighting */
+  userInsuranceProvider?: string | null;
+  /** User's insurance status */
+  userInsuranceStatus?: 'insured' | 'self_pay' | 'uninsured' | null;
+}
+
+/**
+ * Checks if a clinician accepts the user's insurance
+ *
+ * @param clinician - The clinician to check
+ * @param userProvider - The user's insurance provider name
+ * @returns boolean indicating if there's a match
+ */
+function checkInsuranceMatch(clinician: Clinician, userProvider: string | null): boolean {
+  if (!userProvider || !clinician.acceptedInsurances?.length) return false;
+  
+  const normalizedUserProvider = userProvider.toLowerCase();
+  return clinician.acceptedInsurances.some((insurance) => {
+    const normalizedInsurance = insurance.toLowerCase();
+    return normalizedInsurance.includes(normalizedUserProvider) ||
+           normalizedUserProvider.includes(normalizedInsurance);
+  });
 }
 
 /**
@@ -38,6 +60,8 @@ interface ClinicianCardProps {
  * <ClinicianCard
  *   clinician={matchedClinician}
  *   isSelected={true}
+ *   userInsuranceProvider="Aetna"
+ *   userInsuranceStatus="insured"
  * />
  * ```
  */
@@ -46,7 +70,12 @@ export function ClinicianCard({
   isSelected,
   onClick,
   className,
+  userInsuranceProvider,
+  userInsuranceStatus,
 }: ClinicianCardProps) {
+  const hasInsuranceMatch = userInsuranceStatus === 'insured' && 
+    checkInsuranceMatch(clinician, userInsuranceProvider ?? null);
+
   return (
     <div
       className={cn(
@@ -61,6 +90,16 @@ export function ClinicianCard({
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
     >
+      {/* Insurance Match Banner */}
+      {hasInsuranceMatch && (
+        <div className="bg-emerald-500 text-white px-4 py-2 flex items-center gap-2">
+          <CheckCircle className="h-4 w-4" />
+          <span className="text-sm font-medium">
+            In-Network with your {userInsuranceProvider} insurance
+          </span>
+        </div>
+      )}
+
       {/* Photo section */}
       <div className="relative aspect-[4/3] bg-muted">
         {clinician.photoUrl ? (
@@ -99,6 +138,27 @@ export function ClinicianCard({
           </p>
         )}
 
+        {/* Insurance and payment badges */}
+        <div className="flex flex-wrap gap-2 mb-3">
+          {/* In-network badge (only if user has insurance and matches) */}
+          {hasInsuranceMatch && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+              <Shield className="h-3 w-3" />
+              In-Network
+            </span>
+          )}
+          {clinician.acceptsSelfPay && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+              Self-pay friendly
+            </span>
+          )}
+          {clinician.offersSlidingScale && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+              Sliding scale
+            </span>
+          )}
+        </div>
+
         {/* Specialties */}
         {clinician.specialties.length > 0 && (
           <div className="flex flex-wrap gap-2">
@@ -130,7 +190,12 @@ export function ClinicianCardCompact({
   isSelected,
   onClick,
   className,
+  userInsuranceProvider,
+  userInsuranceStatus,
 }: ClinicianCardProps) {
+  const hasInsuranceMatch = userInsuranceStatus === 'insured' && 
+    checkInsuranceMatch(clinician, userInsuranceProvider ?? null);
+
   return (
     <div
       className={cn(
@@ -138,6 +203,7 @@ export function ClinicianCardCompact({
         isSelected
           ? 'border-primary bg-primary/5'
           : 'border-border hover:border-primary/50',
+        hasInsuranceMatch && 'ring-2 ring-emerald-500/20',
         onClick && 'cursor-pointer',
         className
       )}
@@ -163,9 +229,17 @@ export function ClinicianCardCompact({
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <h4 className="font-semibold text-foreground">
-          {clinician.displayName}
-        </h4>
+        <div className="flex items-center gap-2">
+          <h4 className="font-semibold text-foreground">
+            {clinician.displayName}
+          </h4>
+          {hasInsuranceMatch && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+              <Shield className="h-3 w-3" />
+              In-Network
+            </span>
+          )}
+        </div>
         <p className="text-sm text-muted-foreground line-clamp-2">
           {clinician.bio}
         </p>
