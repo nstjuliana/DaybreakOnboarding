@@ -65,22 +65,13 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   # Enable DNS rebinding protection (HIPAA)
-  # Allow Aptible endpoints and custom domains
-  if ENV['DISABLE_HOST_AUTHORIZATION'] == 'true'
-    # Disable host authorization for testing/debugging
-    config.hosts.clear if config.hosts.is_a?(Array)
-    config.host_authorization = { exclude: ->(request) { true } }
-  else
-    # Production: Restrict to known hosts
-    config.hosts = [
-      ENV.fetch('APP_HOST', 'daybreakhealth.com'),
-      '.on-aptible.com' # Aptible default endpoints (allows any subdomain)
-    ]
-    config.hosts << ENV['APTIBLE_HOSTNAME'] if ENV['APTIBLE_HOSTNAME'].present?
-    
-    # Allow health check endpoint without host validation
-    config.host_authorization = { exclude: ->(request) { request.path.start_with?('/api/v1/health') } }
-  end
+  # Temporarily disabled - TODO: Re-enable with proper host configuration
+  # config.hosts = [
+  #   ENV.fetch('APP_HOST', 'daybreakhealth.com'),
+  #   '.on-aptible.com'
+  # ]
+  # config.hosts << ENV['APTIBLE_HOSTNAME'] if ENV['APTIBLE_HOSTNAME'].present?
+  # config.host_authorization = { exclude: ->(request) { request.path.start_with?('/api/v1/health') } }
 
   # Trusted proxies (Aptible load balancer)
   config.action_dispatch.trusted_proxies = [
