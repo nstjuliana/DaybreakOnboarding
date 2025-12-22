@@ -29,7 +29,7 @@ interface SSEChunkEvent extends SSEEventBase {
 /**
  * Complete event data
  */
-interface SSECompleteEvent extends SSEEventBase {
+export interface SSECompleteEvent extends SSEEventBase {
   type: 'complete';
   message_id: string;
   risk_level: string;
