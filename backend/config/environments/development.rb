@@ -70,9 +70,10 @@ Rails.application.configure do
   config.action_view.annotate_rendered_view_with_filenames = true
 
   # Allowed hosts
-  config.hosts << 'localhost'
-  config.hosts << '127.0.0.1'
-  config.hosts << /.*\.ngrok\.io/
+  # DISABLED for debugging - host authorization disabled
+  # config.hosts << 'localhost'
+  # config.hosts << '127.0.0.1'
+  # config.hosts << /.*\.ngrok\.io/
 
   # Action Cable allowed origins
   config.action_cable.disable_request_forgery_protection = true
