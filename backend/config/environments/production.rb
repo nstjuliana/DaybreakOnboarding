@@ -68,12 +68,12 @@ Rails.application.configure do
   # Allow Aptible endpoints and custom domains
   config.hosts = [
     ENV.fetch('APP_HOST', 'daybreakhealth.com'),
-    /\A[a-z0-9-]+\.on-aptible\.com\z/i # Aptible default endpoints (anchored regex)
+    '.on-aptible.com' # Aptible default endpoints (allows any subdomain)
   ]
   config.hosts << ENV['APTIBLE_HOSTNAME'] if ENV['APTIBLE_HOSTNAME'].present?
 
   # Allow health check endpoint without host validation
-  config.host_authorization = { exclude: ->(request) { request.path == '/health' } }
+  config.host_authorization = { exclude: ->(request) { request.path.start_with?('/api/v1/health') } }
 
   # Trusted proxies (Aptible load balancer)
   config.action_dispatch.trusted_proxies = [
