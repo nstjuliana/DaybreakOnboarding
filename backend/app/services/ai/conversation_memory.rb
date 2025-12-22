@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
 ##
-# AI::ConversationMemory Service
+# Ai::ConversationMemory Service
 #
 # Manages conversation history for AI chat sessions.
 # Provides formatted message history for OpenAI API calls.
 #
 # @example
-#   memory = AI::ConversationMemory.new(conversation)
+#   memory = Ai::ConversationMemory.new(conversation)
 #   messages = memory.to_openai_messages
 #
-module AI
+module Ai
   class ConversationMemory
     # Maximum messages to include in context (to manage token limits)
     MAX_CONTEXT_MESSAGES = 20

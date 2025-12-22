@@ -1,6 +1,6 @@
 # Crisis Keywords Configuration
 # Categorized keywords for crisis detection
-# Used by AI::CrisisDetector service
+# Used by Ai::CrisisDetector service
 
 # Risk Level: CRITICAL
 # Immediate danger indicators - requires safety pivot

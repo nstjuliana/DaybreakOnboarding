@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 ##
-# AI::ScreenerChatService
+# Ai::ScreenerChatService
 #
 # Main orchestrator for AI-administered screener conversations.
 # Handles message processing, response generation, and conversation flow.
 #
 # @example
-#   service = AI::ScreenerChatService.new(conversation)
+#   service = Ai::ScreenerChatService.new(conversation)
 #   response = service.process_message("I feel sad most days")
 #   # => { content: "...", risk_level: "low", extracted: {...} }
 #
-module AI
+module Ai
   class ScreenerChatService
     # Default model for chat
     DEFAULT_MODEL = 'gpt-4o'
@@ -225,7 +225,7 @@ module AI
     #
     def detect_crisis(content)
       # Delegate to CrisisDetector service
-      AI::CrisisDetector.new.analyze(content)
+      Ai::CrisisDetector.new.analyze(content)
     rescue StandardError => e
       Rails.logger.error "[ScreenerChatService] Crisis detection error: #{e.message}"
       { risk_level: 'none', flags: {}, matched_keywords: [] }
@@ -273,7 +273,7 @@ module AI
     # @return [Hash] Extracted response data
     #
     def extract_response(content)
-      AI::ResponseExtractor.new(
+      Ai::ResponseExtractor.new(
         screener_type: conversation.screener_type
       ).extract(content, current_question: next_question)
     rescue StandardError => e

@@ -20,7 +20,7 @@ import { TimeSlotPicker } from '@/components/scheduling/time-slot-picker';
 import { AppointmentSummary } from '@/components/scheduling/appointment-summary';
 import { BookingConfirmation } from '@/components/scheduling/booking-confirmation';
 import { apiPost, apiGet } from '@/lib/api/client';
-import type { Clinician } from '@/types/clinician';
+import type { Clinician, ClinicianStatus } from '@/types/clinician';
 
 /**
  * Phase 4: Scheduling page
@@ -86,7 +86,7 @@ export default function Phase4Page() {
             photoUrl: response.data.photo_url as string,
             videoUrl: response.data.video_url as string | undefined,
             specialties: response.data.specialties as string[],
-            status: response.data.status as string,
+            status: response.data.status as ClinicianStatus,
           });
 
           // Load availability

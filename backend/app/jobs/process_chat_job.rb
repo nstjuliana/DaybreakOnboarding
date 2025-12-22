@@ -32,7 +32,7 @@ class ProcessChatJob < ApplicationJob
       return
     end
 
-    chat_service = AI::ScreenerChatService.new(conversation)
+    chat_service = Ai::ScreenerChatService.new(conversation)
     result = chat_service.process_message(content)
 
     # Handle crisis detection
@@ -45,7 +45,7 @@ class ProcessChatJob < ApplicationJob
     AnalyzeAssessmentJob.perform_later(assessment_id: conversation.assessment_id) if result[:is_complete]
 
     result
-  rescue AI::CrisisDetector::CriticalRiskError => e
+  rescue Ai::CrisisDetector::CriticalRiskError => e
     # Critical crisis - ensure safety pivot is shown
     handle_critical_crisis(conversation, e.message)
   end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 ##
-# AI::CrisisDetector Service
+# Ai::CrisisDetector Service
 #
 # Detects crisis indicators in user messages using keyword matching.
 # Designed for future upgrade to LLM-based analysis.
@@ -14,11 +14,11 @@
 # - none: No crisis indicators detected
 #
 # @example
-#   detector = AI::CrisisDetector.new
+#   detector = Ai::CrisisDetector.new
 #   result = detector.analyze("I feel like giving up")
 #   # => { risk_level: 'medium', flags: {...}, matched_keywords: [...] }
 #
-module AI
+module Ai
   class CrisisDetector
     # Risk level constants
     RISK_LEVELS = ['none', 'low', 'medium', 'high', 'critical'].freeze

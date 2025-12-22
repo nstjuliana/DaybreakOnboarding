@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
 ##
-# AI::PromptBuilder Service
+# Ai::PromptBuilder Service
 #
 # Builds context-aware prompts for the AI screener chat.
 # Loads prompt templates and customizes them based on screener type and context.
 #
 # @example
-#   builder = AI::PromptBuilder.new(screener_type: 'phq9a', user_type: 'minor')
+#   builder = Ai::PromptBuilder.new(screener_type: 'phq9a', user_type: 'minor')
 #   system_prompt = builder.build_system_prompt
 #
-module AI
+module Ai
   class PromptBuilder
     # Screener-specific context files
     SCREENER_CONTEXTS = {

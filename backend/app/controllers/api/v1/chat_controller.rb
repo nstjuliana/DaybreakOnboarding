@@ -6,7 +6,7 @@
 # Handles chat message operations for AI-administered screeners.
 # Supports both regular responses and SSE streaming.
 #
-# @see AI::ScreenerChatService
+# @see Ai::ScreenerChatService
 #
 module Api
   module V1
@@ -35,7 +35,7 @@ module Api
           }, status: :unprocessable_content
         end
 
-        chat_service = AI::ScreenerChatService.new(@conversation)
+        chat_service = Ai::ScreenerChatService.new(@conversation)
         result = chat_service.process_message(user_content)
 
         response_data = {
@@ -90,7 +90,7 @@ module Api
         sse = SseRenderer.new(response.stream)
 
         begin
-          chat_service = AI::ScreenerChatService.new(@conversation)
+          chat_service = Ai::ScreenerChatService.new(@conversation)
 
           # Send start event
           sse.write({ type: 'start' }, event: 'start')

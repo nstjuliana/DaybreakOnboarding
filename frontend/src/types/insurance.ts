@@ -95,7 +95,7 @@ export interface InsuranceCard {
 export interface InsuranceFormData {
   provider: string;
   memberId: string;
-  groupNumber: string;
+  groupNumber?: string;
   planName?: string;
   policyholderName: string;
   policyholderDob: string;

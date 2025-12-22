@@ -222,7 +222,7 @@ interface UploadAreaProps {
   label: string;
   required: boolean;
   preview: string | null;
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
   disabled: boolean;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDrop: (e: React.DragEvent<HTMLDivElement>) => void;

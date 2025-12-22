@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 ##
-# AI::ResponseExtractor Service
+# Ai::ResponseExtractor Service
 #
 # Extracts structured screener responses from conversational text.
 # Uses OpenAI function calling for reliable extraction.
 #
 # @example
-#   extractor = AI::ResponseExtractor.new(screener_type: 'phq9a')
+#   extractor = Ai::ResponseExtractor.new(screener_type: 'phq9a')
 #   result = extractor.extract("I feel that way almost every day", current_question: {...})
 #   # => { question_id: 'phq9a_1', extracted_value: 3, confidence: 0.95 }
 #
-module AI
+module Ai
   class ResponseExtractor
     # Model for extraction (faster, cheaper than chat model)
     EXTRACTION_MODEL = 'gpt-4o-mini'

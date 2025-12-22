@@ -57,7 +57,7 @@ module Api
 
         if @conversation.save
           # Generate initial greeting
-          chat_service = AI::ScreenerChatService.new(@conversation)
+          chat_service = Ai::ScreenerChatService.new(@conversation)
           greeting = chat_service.generate_greeting
 
           render json: {
