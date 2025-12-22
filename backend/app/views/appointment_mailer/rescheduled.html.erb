@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h1>Your Daybreak Health Appointment Has Been Rescheduled</h1>
+
+    <p>Dear <%= @user.first_name %>,</p>
+
+    <p>Your appointment with <%= @clinician.display_name %> has been rescheduled.</p>
+
+    <h2>Updated Appointment Details:</h2>
+    <ul>
+      <li><strong>Clinician:</strong> <%= @clinician.display_name %></li>
+      <li><strong>New Date & Time:</strong> <%= @appointment.scheduled_at.strftime('%A, %B %d, %Y at %I:%M %p') %></li>
+      <li><strong>Previously Scheduled:</strong> <%= @old_time.strftime('%A, %B %d, %Y at %I:%M %p') %></li>
+      <li><strong>Session Type:</strong> <%= @appointment.session_type_label %></li>
+      <li><strong>Duration:</strong> <%= @appointment.duration_minutes %> minutes</li>
+    </ul>
+
+    <p>Please arrive 10 minutes early for your session. If you need to make further changes or have any questions, please contact us.</p>
+
+    <p>Take care,<br>
+    The Daybreak Health Team</p>
+  </body>
+</html>
