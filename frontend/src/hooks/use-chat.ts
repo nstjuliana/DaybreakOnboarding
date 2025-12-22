@@ -336,7 +336,7 @@ export function useChat(config: UseChatConfig = {}): UseChatReturn {
         setIsSending(false);
       }
     },
-    [conversationId, addMessage, updateLastMessage, onMessageSent, onAIResponse, onError]
+    [conversationId, addMessage, updateLastMessage, onMessageSent, onAIResponse, onError, currentQuestionIndex]
   );
 
   /**

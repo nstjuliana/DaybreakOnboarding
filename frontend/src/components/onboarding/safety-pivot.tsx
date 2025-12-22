@@ -101,7 +101,7 @@ export function SafetyPivot({
           id="safety-title"
           className="text-2xl md:text-3xl font-bold text-neutral-800 mb-2"
         >
-          We're Here For You
+          We&apos;re Here For You
         </h1>
         <p
           id="safety-description"
@@ -140,7 +140,7 @@ export function SafetyPivot({
           <div className="bg-primary-50 rounded-xl p-4 text-center">
             <Shield className="w-8 h-8 text-primary-500 mx-auto mb-2" />
             <p className="text-sm text-neutral-700">
-              Everything you've shared with us is confidential.
+              Everything you&apos;ve shared with us is confidential.
               <br />
               Taking care of your mental health is important.
             </p>
@@ -156,7 +156,7 @@ export function SafetyPivot({
             onClick={handleImSafe}
             className="w-full"
           >
-            I'm Safe - Continue Assessment
+            I&apos;m Safe - Continue Assessment
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
 
@@ -288,7 +288,7 @@ export function SafetyBanner({
         <Heart className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" />
         <div className="flex-1">
           <p className="text-sm text-neutral-700">
-            If you're struggling, you don't have to face it alone.
+            If you&apos;re struggling, you don&apos;t have to face it alone.
             Help is available 24/7.
           </p>
           <button

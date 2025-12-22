@@ -95,8 +95,6 @@ export function determineSeverity(
   maxScore: number,
   cutoff: number
 ): SeverityLevel {
-  const percentage = (score / maxScore) * 100;
-
   if (score < cutoff * 0.5) return 'minimal';
   if (score < cutoff) return 'mild';
   if (score < cutoff * 1.5) return 'moderate';

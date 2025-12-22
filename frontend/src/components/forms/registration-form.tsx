@@ -73,7 +73,8 @@ interface RegistrationFormProps {
  * @param props - Component props
  */
 export function RegistrationForm({
-  userType,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  userType: _userType,
   onSubmit,
   className,
 }: RegistrationFormProps) {

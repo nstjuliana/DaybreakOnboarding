@@ -9,6 +9,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import { Upload, X, Camera, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -262,9 +263,11 @@ function UploadArea({
           {required && <span className="text-destructive ml-1">*</span>}
         </label>
         <div className="relative rounded-lg overflow-hidden border border-neutral-200">
-          <img
+          <Image
             src={preview}
             alt={`${label} preview`}
+            width={400}
+            height={192}
             className="w-full h-48 object-cover"
           />
           <button

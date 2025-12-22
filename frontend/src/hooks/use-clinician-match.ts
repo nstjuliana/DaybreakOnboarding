@@ -254,27 +254,26 @@ export function useClinicianMatch(): UseClinicianMatchReturn {
       }
 
       // If no clinician data from API, use mock data
-      useMockFallback();
+      const mockMatches = getMockMatches();
+      setState({
+        matches: mockMatches,
+        selectedMatch: mockMatches[0],
+        isLoading: false,
+        error: null,
+      });
     } catch {
       // Use console.log instead of console.error to avoid Next.js error overlay - error is handled gracefully
       console.log('[ClinicianMatch] API unavailable, using mock data fallback');
       // Fall back to mock data when API is unavailable
-      useMockFallback();
+      const mockMatches = getMockMatches();
+      setState({
+        matches: mockMatches,
+        selectedMatch: mockMatches[0],
+        isLoading: false,
+        error: null,
+      });
     }
   }, [onboardingState.insuranceStatus, onboardingState.insuranceProvider]);
-
-  /**
-   * Uses mock data as fallback for development
-   */
-  function useMockFallback() {
-    const mockMatches = getMockMatches();
-    setState({
-      matches: mockMatches,
-      selectedMatch: mockMatches[0],
-      isLoading: false,
-      error: null,
-    });
-  }
 
   /**
    * Selects a specific match

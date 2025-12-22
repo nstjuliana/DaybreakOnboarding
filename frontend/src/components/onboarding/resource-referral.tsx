@@ -174,7 +174,7 @@ export function LocalServicesFinder({ className }: { className?: string }) {
             Find Services Near You
           </h3>
           <p className="text-sm text-neutral-600 mt-1">
-            SAMHSA's treatment locator helps you find mental health services,
+            SAMHSA&apos;s treatment locator helps you find mental health services,
             substance use treatment, and support groups in your area.
           </p>
           <a

@@ -150,6 +150,7 @@ export function useAvailability(): UseAvailabilityReturn {
    */
   const getAvailableDates = useCallback(() => {
     return Object.entries(state.slotsByDate)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       .filter(([_, slots]) => slots.some((s) => s.available))
       .map(([date]) => date);
   }, [state.slotsByDate]);

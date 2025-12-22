@@ -96,7 +96,6 @@ export function createChatStream(
 ): () => void {
   const {
     baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1',
-    token,
     onChunk,
     onComplete,
     onError,
@@ -140,7 +139,7 @@ export function createChatStream(
           eventSource.close();
           break;
       }
-    } catch (err) {
+    } catch {
       // Non-JSON data, might be raw text
       accumulated += event.data;
       onChunk?.(event.data, accumulated);

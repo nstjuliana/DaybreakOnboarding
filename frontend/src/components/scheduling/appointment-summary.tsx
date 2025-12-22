@@ -7,6 +7,7 @@
 
 'use client';
 
+import Image from 'next/image';
 import { Calendar, Clock, Video, User } from 'lucide-react';
 import type { Clinician } from '@/types/clinician';
 
@@ -107,9 +108,11 @@ export function AppointmentSummary({
         <div className="flex items-center gap-4">
           <div className="flex-shrink-0">
             {clinician.photoUrl ? (
-              <img
+              <Image
                 src={clinician.photoUrl}
                 alt={clinician.fullName}
+                width={48}
+                height={48}
                 className="w-12 h-12 rounded-full object-cover"
               />
             ) : (

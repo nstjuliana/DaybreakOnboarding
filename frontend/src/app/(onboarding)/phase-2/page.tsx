@@ -75,7 +75,8 @@ export default function Phase2Page() {
     currentQuestionIndex,
     totalQuestions,
     isScreenerComplete,
-    screenerResponses,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    screenerResponses: _screenerResponses,
     sendMessage,
     sendQuickReply,
     addMessage,

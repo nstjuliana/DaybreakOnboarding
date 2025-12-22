@@ -183,7 +183,7 @@ export function EmergencyBanner({ className }: { className?: string }) {
         </div>
         <div>
           <p className="font-semibold text-error-700">
-            If you're in immediate danger, call 911
+            If you&apos;re in immediate danger, call 911
           </p>
           <a
             href="tel:911"

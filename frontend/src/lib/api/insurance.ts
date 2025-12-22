@@ -5,12 +5,11 @@
  * @see {@link _docs/phases/phase-3-insurance-matching.md}
  */
 
-import { apiGet, apiPost, apiPatch, type ApiResponse } from './client';
+import { apiGet, apiPost, apiPatch } from './client';
 import type {
   InsuranceCard,
   PaymentMethod,
   InsuranceFormData,
-  mapApiInsuranceCard,
 } from '@/types/insurance';
 
 /**
