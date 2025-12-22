@@ -66,14 +66,18 @@ Rails.application.configure do
 
   # Enable DNS rebinding protection (HIPAA)
   # Allow Aptible endpoints and custom domains
-  # Can be disabled for testing with DISABLE_HOST_AUTHORIZATION=true
-  if ENV['DISABLE_HOST_AUTHORIZATION'] != 'true'
+  if ENV['DISABLE_HOST_AUTHORIZATION'] == 'true'
+    # Disable host authorization for testing/debugging
+    config.hosts.clear if config.hosts.is_a?(Array)
+    config.host_authorization = { exclude: ->(request) { true } }
+  else
+    # Production: Restrict to known hosts
     config.hosts = [
       ENV.fetch('APP_HOST', 'daybreakhealth.com'),
       '.on-aptible.com' # Aptible default endpoints (allows any subdomain)
     ]
     config.hosts << ENV['APTIBLE_HOSTNAME'] if ENV['APTIBLE_HOSTNAME'].present?
-
+    
     # Allow health check endpoint without host validation
     config.host_authorization = { exclude: ->(request) { request.path.start_with?('/api/v1/health') } }
   end
