@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 ##
-# SSERenderer
+# SseRenderer
 #
 # Helper class for rendering Server-Sent Events (SSE) responses.
 # Provides consistent formatting for SSE streams.
 #
 # @example
-#   sse = SSERenderer.new(response.stream)
+#   sse = SseRenderer.new(response.stream)
 #   sse.write("Hello", event: "message")
 #   sse.write({ data: "test" }, event: "data")
 #   sse.close
 #
-class SSERenderer
+class SseRenderer
   attr_reader :stream
 
   ##

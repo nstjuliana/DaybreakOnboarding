@@ -87,7 +87,7 @@ module Api
         response.headers['Connection'] = 'keep-alive'
         response.headers['X-Accel-Buffering'] = 'no'
 
-        sse = SSERenderer.new(response.stream)
+        sse = SseRenderer.new(response.stream)
 
         begin
           chat_service = AI::ScreenerChatService.new(@conversation)
