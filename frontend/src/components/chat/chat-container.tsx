@@ -123,7 +123,7 @@ export function ChatContainer({
               options={quickReplies}
               onSelect={handleQuickReply}
               disabled={isSending}
-              layout="vertical"
+              layout="horizontal"
             />
           </div>
         )}

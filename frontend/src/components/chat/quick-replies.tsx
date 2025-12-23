@@ -126,7 +126,7 @@ export function LikertQuickReplies({
       options={scaleOptions[scale]}
       onSelect={onSelect}
       disabled={disabled}
-      layout="vertical"
+      layout="horizontal"
       className={className}
     />
   );
