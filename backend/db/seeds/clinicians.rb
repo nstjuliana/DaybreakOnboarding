@@ -71,6 +71,91 @@ clinicians_data = [
     accepts_self_pay: true,
     offers_sliding_scale: true,
     status: 'active'
+  },
+  # Test data for insurance matching - specific providers
+  {
+    first_name: 'Lisa',
+    last_name: 'Anderson',
+    credentials: 'LCSW',
+    bio: "Specialized in adolescent behavioral therapy with proven success in helping teens develop healthy coping mechanisms. I've worked with families across diverse backgrounds and income levels.",
+    photo_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400',
+    specialties: ['anxiety', 'behavioral_issues', 'teens'],
+    accepted_insurances: ['Blue Cross Blue Shield', 'Aetna', 'Anthem'],
+    accepts_self_pay: true,
+    offers_sliding_scale: false,
+    status: 'active'
+  },
+  {
+    first_name: 'James',
+    last_name: 'Williams',
+    credentials: 'PhD',
+    bio: "Trauma-focused cognitive behavioral therapy specialist with 15+ years of experience. I focus on helping young people heal from difficult experiences and build resilience.",
+    photo_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+    specialties: ['trauma', 'ptsd', 'anxiety'],
+    accepted_insurances: ['Kaiser Permanente', 'Cigna', 'Humana'],
+    accepts_self_pay: true,
+    offers_sliding_scale: false,
+    status: 'active'
+  },
+  {
+    first_name: 'Rachel',
+    last_name: 'Martinez',
+    credentials: 'LMFT',
+    bio: "Family systems specialist dedicated to helping families communicate more effectively and resolve conflicts. Experience with adolescent depression and anxiety.",
+    photo_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400',
+    specialties: ['family_therapy', 'communication', 'depression'],
+    accepted_insurances: ['Medicaid', 'Oscar Health', 'United Healthcare'],
+    accepts_self_pay: true,
+    offers_sliding_scale: true,
+    status: 'active'
+  },
+  {
+    first_name: 'Kevin',
+    last_name: 'Lee',
+    credentials: 'PsyD',
+    bio: "Play therapy and child psychology specialist. I create a safe, creative space for children to express themselves and work through emotional challenges.",
+    photo_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400',
+    specialties: ['children', 'play_therapy', 'anxiety'],
+    accepted_insurances: ['Tricare', 'Aetna', 'Blue Cross Blue Shield'],
+    accepts_self_pay: false,
+    offers_sliding_scale: true,
+    status: 'active'
+  },
+  {
+    first_name: 'Sophia',
+    last_name: 'Okafor',
+    credentials: 'LPC',
+    bio: "Culturally competent therapist specializing in helping adolescents from diverse backgrounds navigate mental health challenges. Passionate about reducing barriers to mental healthcare.",
+    photo_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+    specialties: ['anxiety', 'depression', 'teens', 'cultural_sensitivity'],
+    accepted_insurances: ['Molina Healthcare', 'Medicaid', 'Oscar Health'],
+    accepts_self_pay: true,
+    offers_sliding_scale: true,
+    status: 'active'
+  },
+  {
+    first_name: 'Marcus',
+    last_name: 'Jackson',
+    credentials: 'LCSW',
+    bio: "ADHD and neurodevelopmental specialist with expertise in helping teens manage attention challenges and develop executive functioning skills.",
+    photo_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+    specialties: ['adhd', 'social_skills', 'executive_functioning'],
+    accepted_insurances: ['United Healthcare', 'Cigna', 'Anthem'],
+    accepts_self_pay: true,
+    offers_sliding_scale: false,
+    status: 'active'
+  },
+  {
+    first_name: 'Elena',
+    last_name: 'Rossi',
+    credentials: 'PhD',
+    bio: "Eating disorders and body image specialist with training in Family-Based Treatment. I work with teens and families to build healthy relationships with food and body.",
+    photo_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400',
+    specialties: ['eating_disorders', 'body_image', 'anxiety'],
+    accepted_insurances: ['Kaiser Permanente', 'Blue Cross Blue Shield'],
+    accepts_self_pay: true,
+    offers_sliding_scale: false,
+    status: 'active'
   }
 ]
 
