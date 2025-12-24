@@ -80,7 +80,7 @@ export const PHASES: Phase[] = [
     label: 'Account & Matching',
     shortLabel: 'Details',
     description: 'Create your account and find your clinician',
-    route: '/phase-3/account',
+    route: '/phase-3',
     order: 3,
     requiresAuth: false,
   },
