@@ -261,17 +261,29 @@ export function useClinicianMatch(): UseClinicianMatchReturn {
         isLoading: false,
         error: null,
       });
-    } catch {
-      // Use console.log instead of console.error to avoid Next.js error overlay - error is handled gracefully
-      console.log('[ClinicianMatch] API unavailable, using mock data fallback');
-      // Fall back to mock data when API is unavailable
-      const mockMatches = getMockMatches();
-      setState({
-        matches: mockMatches,
-        selectedMatch: mockMatches[0],
-        isLoading: false,
-        error: null,
-      });
+    } catch (err) {
+      // Log the actual error for debugging
+      console.error('[ClinicianMatch] Failed to fetch clinician:', err);
+      
+      // In development, fall back to mock data for convenience
+      // In production, show an error instead
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[ClinicianMatch] Using mock data fallback - this will NOT work for booking!');
+        const mockMatches = getMockMatches();
+        setState({
+          matches: mockMatches,
+          selectedMatch: mockMatches[0],
+          isLoading: false,
+          error: 'Using demo data - booking will not work. Check API connection.',
+        });
+      } else {
+        setState({
+          matches: [],
+          selectedMatch: null,
+          isLoading: false,
+          error: 'Unable to find available clinicians. Please try again.',
+        });
+      }
     }
   }, [onboardingState.insuranceStatus, onboardingState.insuranceProvider]);
 
