@@ -59,15 +59,21 @@ export function ChatContainer({
   inputPlaceholder,
   className,
 }: ChatContainerProps) {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   /**
-   * Auto-scroll to bottom when new messages arrive
+   * Auto-scroll to bottom when new messages arrive or quick replies appear
+   * Uses scrollTop on the container to avoid scrolling the entire page
    */
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
+  }, [messages, isTyping, quickReplies]);
 
   /**
    * Handles quick reply selection
@@ -127,9 +133,6 @@ export function ChatContainer({
             />
           </div>
         )}
-
-        {/* Scroll anchor */}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input area */}
@@ -157,20 +160,32 @@ export function ChatContainerCompact({
   onSendMessage: (content: string) => void;
   className?: string;
 }) {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
+  /**
+   * Auto-scroll to bottom when new messages arrive
+   * Uses scrollTop on the container to avoid scrolling the entire page
+   */
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
   }, [messages, isTyping]);
 
   return (
     <div className={cn('flex flex-col h-96', className)}>
-      <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-white rounded-t-lg border border-b-0">
+      <div
+        ref={messagesContainerRef}
+        className="flex-1 overflow-y-auto p-3 space-y-3 bg-white rounded-t-lg border border-b-0"
+      >
         {messages.map((message) => (
           <ChatMessage key={message.id} message={message} />
         ))}
         {isTyping && <TypingIndicator />}
-        <div ref={messagesEndRef} />
       </div>
       <ChatInput
         onSend={onSendMessage}
