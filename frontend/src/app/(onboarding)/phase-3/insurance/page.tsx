@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ import type { InsuranceFormData } from '@/types/insurance';
  */
 export default function Phase3InsurancePage() {
   const router = useRouter();
-  const { state, setPhase } = useOnboarding();
+  const { state, setPhase, setInsuranceProvider } = useOnboarding();
   const {
     step,
     insuranceCard,
@@ -34,8 +34,8 @@ export default function Phase3InsurancePage() {
     error,
     uploadImages,
     switchToManual,
-    submitManualEntry,
-    confirmVerification,
+    submitManualEntry: baseSubmitManualEntry,
+    confirmVerification: baseConfirmVerification,
     updateData,
   } = useInsuranceUpload({ initialStep: 'upload' });
 
@@ -51,12 +51,41 @@ export default function Phase3InsurancePage() {
     }
   }, [state.userType, router]);
 
+  // Save insurance provider to onboarding state when insurance card is updated
+  useEffect(() => {
+    if (insuranceCard?.provider) {
+      setInsuranceProvider(insuranceCard.provider);
+    }
+  }, [insuranceCard?.provider, setInsuranceProvider]);
+
   // Navigate to next step when complete
   useEffect(() => {
     if (step === 'complete') {
       router.push('/phase-3/matching');
     }
   }, [step, router]);
+
+  /**
+   * Wraps manual entry submission to also save provider to onboarding state
+   */
+  const submitManualEntry = useCallback(async (data: InsuranceFormData) => {
+    // Save the provider to onboarding state BEFORE the API call completes
+    if (data.provider) {
+      setInsuranceProvider(data.provider);
+    }
+    await baseSubmitManualEntry(data);
+  }, [baseSubmitManualEntry, setInsuranceProvider]);
+
+  /**
+   * Wraps verification confirmation to ensure provider is saved
+   */
+  const confirmVerification = useCallback(async () => {
+    // Ensure provider is saved from insuranceCard before completing
+    if (insuranceCard?.provider) {
+      setInsuranceProvider(insuranceCard.provider);
+    }
+    await baseConfirmVerification();
+  }, [baseConfirmVerification, insuranceCard, setInsuranceProvider]);
 
   // Handle back navigation
   function handleBack() {
