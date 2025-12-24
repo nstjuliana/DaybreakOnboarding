@@ -57,10 +57,22 @@ class Clinician < ApplicationRecord
   # Scopes
   scope :active, -> { where(status: 'active') }
   scope :with_specialty, ->(specialty) { where('? = ANY(specialties)', specialty) }
-  scope :accepts_insurance, ->(provider) { where('? = ANY(accepted_insurances)', provider) }
   scope :self_pay_friendly, -> { where(accepts_self_pay: true) }
   scope :sliding_scale, -> { where(offers_sliding_scale: true) }
   scope :uninsured_friendly, -> { where(accepts_self_pay: true).or(where(offers_sliding_scale: true)) }
+
+  ##
+  # Finds clinicians who accept a specific insurance provider (case-insensitive)
+  #
+  # @param provider [String] The insurance provider name
+  # @return [ActiveRecord::Relation]
+  #
+  scope :accepts_insurance, lambda { |provider|
+    where(
+      'EXISTS (SELECT 1 FROM unnest(accepted_insurances) AS ins WHERE LOWER(ins) LIKE LOWER(?))',
+      "%#{provider}%"
+    )
+  }
 
   ##
   # Returns the clinician's full display name with credentials
