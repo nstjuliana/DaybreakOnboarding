@@ -164,7 +164,7 @@ export default function Phase4Page() {
   function handleComplete() {
     completePhase('phase-4');
     clearProgress();
-    router.push('/');
+    router.push('/complete');
   }
 
   // Handle back
